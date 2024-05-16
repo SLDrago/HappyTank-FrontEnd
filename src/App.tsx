@@ -9,6 +9,8 @@ import SignIn from "./pages/Authentication/SignIn";
 import SignUp from "./pages/Authentication/SignUp";
 import FogetPW from "./pages/Authentication/FogetPW";
 import ResetPW from "./pages/Authentication/ResetPW";
+import FishSearch from "./pages/Search/Search";
+import Advertisement from "./pages/Advertisement";
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -72,15 +74,24 @@ function App() {
             </>
           }
         />
-        {/* <Route
-          path="/database/fish-data"
+        <Route
+          path="/search"
           element={
             <>
-              <PageTitle title="Fish Data | HappyTank-Admin" />
-              <FishData />
+              <PageTitle title="Fish Database | HappyTank" />
+              <FishSearch />
             </>
           }
-        /> */}
+        />
+        <Route
+          path="/adverticements"
+          element={
+            <>
+              <PageTitle title="Adverticement Platform | HappyTank" />
+              <Advertisement />
+            </>
+          }
+        />
         <Route
           path="*"
           element={

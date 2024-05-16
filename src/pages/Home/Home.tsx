@@ -1,8 +1,14 @@
-import { Button, Input, Textarea, Typography } from "@material-tailwind/react";
+import {
+  Button,
+  Input,
+  Textarea,
+  Typography,
+  Radio,
+} from "@material-tailwind/react";
 import DefaultLayout from "../../layout/default_layout";
 import BackGround from "../../images/Backgrounds/fish-and-divers-on-blue-sea.svg";
 
-export default function Example() {
+export default function Home() {
   return (
     <div
       className="relative min-h-screen bg-cover bg-center"
@@ -75,12 +81,8 @@ export default function Example() {
                     Select Options for Engagement
                   </Typography>
                   <div className="flex gap-4">
-                    <Button variant="outlined" className="max-w-fit">
-                      General inquiry
-                    </Button>
-                    <Button variant="outlined" className="max-w-fit">
-                      Technical Support
-                    </Button>
+                    <Radio name="type" label="General inquiry" defaultChecked />
+                    <Radio name="type" label="Technical Support" />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
