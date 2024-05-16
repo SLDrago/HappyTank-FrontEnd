@@ -9,7 +9,7 @@ export function SignIn() {
   const togglePasswordVisiblity = () => setPasswordShown((cur) => !cur);
 
   return (
-    <section className="grid text-center h-screen items-center p-8 mb-48">
+    <section className="grid text-center h-screen items-center p-8">
       <div>
         <Typography variant="h3" color="blue-gray" className="mb-2">
           Sign In
