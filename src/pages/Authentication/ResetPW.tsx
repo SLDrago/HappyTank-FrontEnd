@@ -17,8 +17,8 @@ export function SignUp() {
   };
 
   return (
-    <section className="grid text-center h-screen items-center p-8">
-      <div className="mb-6">
+    <section className="grid text-center h-screen items-center p-8 mb-48">
+      <div>
         <Typography variant="h3" color="blue-gray" className="mb-2">
           Hey, Wellcome Back!
         </Typography>
