@@ -1,65 +1,57 @@
-import React, { useState, useEffect } from "react";
-import { Card, CardBody, Input, Button } from "@material-tailwind/react";
-import ChatBubble from "./ChatBubble";
+import React, { useState } from "react";
+import ChatHeader from "./ChatHeader";
+import ChatMessage from "./ChatMessage";
+import ChatInput from "./ChatInput";
+import axios from "axios";
+import ChatbotButton from "./ChatbotButton";
 
 const ChatWindow: React.FC = () => {
-  const [input, setInput] = useState("");
-  const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>(
-    []
-  );
+  const [messages, setMessages] = useState<
+    { sender: "AI" | "You"; message: string }[]
+  >([]);
+  const [isOpen, setIsOpen] = useState(false);
 
-  const handleSend = () => {
-    if (!input.trim()) return;
-
-    const newMessages = [...messages, { text: `You: ${input}`, isUser: true }];
-    setMessages(newMessages);
-
-    // Simulate API call to get bot response
-    const botResponse = `Bot: This is a mock response for "${input}"`;
-    setMessages([...newMessages, { text: botResponse, isUser: false }]);
-    setInput("");
+  const handleSendMessage = async (message: string) => {
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      { sender: "You", message },
+    ]);
+    try {
+      const response = await axios.post("YOUR_API_ENDPOINT", { message });
+      const aiMessage = response.data.reply; // Adjust based on your API response
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { sender: "AI", message: aiMessage },
+      ]);
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
   };
 
-  useEffect(() => {
-    // Simulating water ripple animation effect on mount
-    const rippleEffect = () => {
-      const container = document.getElementById("chat-window");
-      if (container) {
-        container.classList.add("animate-water-ripple");
-        setTimeout(
-          () => container.classList.remove("animate-water-ripple"),
-          1000
-        );
-      }
-    };
-    rippleEffect();
-  }, []);
-
   return (
-    <Card
-      id="chat-window"
-      className="w-full max-w-md mx-auto p-4 bg-white shadow-lg rounded-lg overflow-hidden"
-    >
-      <CardBody>
-        <div className="h-80 overflow-y-scroll p-4 bg-chat-bg rounded-lg">
-          {messages.map((msg, index) => (
-            <ChatBubble key={index} message={msg.text} isUser={msg.isUser} />
-          ))}
+    <>
+      <ChatbotButton onClick={() => setIsOpen(!isOpen)} />
+      {isOpen && (
+        <div
+          style={{
+            boxShadow: "0 0 #0000, 0 0 #0000, 0 1px 2px 0 rgb(0 0 0 / 0.05)",
+          }}
+          className="fixed bottom-20 right-4 md:bottom-[calc(4rem+1.5rem)] md:right-0 md:mr-4 bg-white p-6 rounded-lg border border-[#e5e7eb] md:w-[440px] w-[90%] h-[80%] md:h-[634px] flex flex-col"
+        >
+          <ChatHeader />
+          <div className="flex-1 overflow-y-auto pr-4">
+            {messages.map((msg, index) => (
+              <ChatMessage
+                key={index}
+                sender={msg.sender}
+                message={msg.message}
+              />
+            ))}
+          </div>
+          <ChatInput onSend={handleSendMessage} />
         </div>
-        <div className="flex mt-4">
-          <Input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            className="flex-1 mr-2"
-            placeholder="Type your message"
-          />
-          <Button color="blue" onClick={handleSend}>
-            Send
-          </Button>
-        </div>
-      </CardBody>
-    </Card>
+      )}
+    </>
   );
 };
 

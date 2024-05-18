@@ -1,6 +1,6 @@
 import React, { ReactNode } from "react";
 import NavBar from "../components/NavBar";
-import FloatingChatButton from "../components/ChatBot/FloatingChatButton";
+import ChatWindow from "../components/ChatBot/ChatWindow";
 
 const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   return (
@@ -12,7 +12,7 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
           </div>
         </main>
       </NavBar>
-      <FloatingChatButton />
+      <ChatWindow />
     </>
   );
 };

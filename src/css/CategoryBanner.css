@@ -1,0 +1,24 @@
+.grid-collage-layout {
+  display: grid;
+  grid-template-areas:
+    "item1 item2 item3"
+    "item4 item5";
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+.grid-item.item1 {
+  grid-area: item1;
+}
+.grid-item.item2 {
+  grid-area: item2;
+}
+.grid-item.item3 {
+  grid-area: item3;
+}
+.grid-item.item4 {
+  grid-area: item4;
+}
+.grid-item.item5 {
+  grid-area: item5;
+}
