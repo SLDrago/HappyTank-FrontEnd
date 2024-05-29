@@ -17,6 +17,7 @@ interface AdCardProps {
   description: string;
   link: string;
   rating: number;
+  price?: string;
 }
 
 const truncateText = (text: string, maxLength: number) => {
@@ -62,8 +63,11 @@ const AdCard: React.FC<AdCardProps> = ({
   description,
   link,
   rating,
+  price,
 }) => {
   const truncatedDescription = truncateText(description, 100);
+  const displayPrice = !price || price === "0.00" ? "Free" : `$${price}`;
+
   if (rating > 5) {
     rating = 5;
   } else if (rating < 0 || isNaN(rating) || rating == null) {
@@ -83,7 +87,10 @@ const AdCard: React.FC<AdCardProps> = ({
         <Typography variant="h5" color="blue-gray" className="mb-2">
           {title}
         </Typography>
-        <Typography>{truncatedDescription}</Typography>
+        <Typography className="mb-2">{truncatedDescription}</Typography>
+        <Typography variant="h6" color="green" className="mb-2">
+          {displayPrice}
+        </Typography>
       </CardBody>
       <CardFooter className="pt-0 flex items-center justify-between">
         <NavLink to={link}>
