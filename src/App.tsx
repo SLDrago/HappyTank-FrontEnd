@@ -11,6 +11,7 @@ import FogetPW from "./pages/Authentication/FogetPW";
 import ResetPW from "./pages/Authentication/ResetPW";
 import FishSearch from "./pages/Search/Search";
 import Advertisement from "./pages/Advertisement";
+import ProductPage from "./pages/Advertisement/ProductPage";
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -89,6 +90,15 @@ function App() {
             <>
               <PageTitle title="Adverticement Platform | HappyTank" />
               <Advertisement />
+            </>
+          }
+        />
+        <Route
+          path="/adverticements/product-page"
+          element={
+            <>
+              <PageTitle title="Adverticement Platform | HappyTank" />
+              <ProductPage />
             </>
           }
         />

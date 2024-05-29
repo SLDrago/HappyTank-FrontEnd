@@ -61,6 +61,16 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
           Fish Database
         </NavLink>
       </Typography>
+      <Typography
+        as="li"
+        variant="small"
+        color="blue-gray"
+        className="p-1 font-normal"
+      >
+        <NavLink to="/forum" className="flex items-center">
+          Forum
+        </NavLink>
+      </Typography>
     </ul>
   );
 
