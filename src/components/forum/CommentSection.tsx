@@ -6,20 +6,21 @@ function CommentSection({
   loading,
   setLoading,
   parent,
+  parentReply,
   callBackComment,
 }: any) {
   const handleEnableReply = () => {
-    callBackComment({ action: "reply", data });
+    callBackComment({ action: "reply", data, parent });
   };
 
   const handleLikeDislike = (type: string) => {
     setLoading(true);
-    callBackComment({ action: type, data, parent });
+    callBackComment({ action: type, data, parent, parentReply });
   };
 
   return (
     <>
-      <div className="w-full md:w-3/4 mx-auto px-2 md:px-0">
+      <div className="w-full md:w-2/3 mx-auto px-2 md:px-0">
         <div className="mt-9 flex flex-row">
           {data?.img?.trim() !== "" ? (
             <Avatar
@@ -56,8 +57,8 @@ function CommentSection({
                 onClick={(e: any) => handleLikeDislike("like")}
                 disabled={loading}
                 className={
-                  (data?.userLike ? "bg-blue-900 text-white " : "") +
-                  "mr-1 bg-gray-200 text-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-1.5 text-center inline-flex items-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500"
+                  (!!data?.userLike ? "bg-blue-900 text-white " : "") +
+                  "mr-1 text-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-1.5 text-center inline-flex items-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500"
                 }
               >
                 <svg
@@ -77,8 +78,8 @@ function CommentSection({
                 onClick={(e: any) => handleLikeDislike("dislike")}
                 disabled={loading}
                 className={
-                  (data?.userDislike ? "bg-blue-900 text-white " : "") +
-                  "mr-5 bg-gray-200 text-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-1.5 text-center inline-flex items-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500"
+                  (!!data?.userDislike ? "bg-blue-900 text-white " : "") +
+                  "mr-5 text-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-1.5 text-center inline-flex items-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500"
                 }
               >
                 <svg

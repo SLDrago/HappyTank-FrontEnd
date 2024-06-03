@@ -1,0 +1,42 @@
+/* App.css */
+.container {
+  display: flex;
+  flex-direction: column;
+  background-color: #faf8f8;
+  padding: 10px;
+  border-radius: 8px;
+  width: 500px;
+  margin: auto;
+  margin-bottom:  25px;
+}
+
+.input-container {
+  display: flex;
+  align-items: center;
+  background-color: #fff; /* Change background color to white */
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.input-field {
+  flex: 1;
+  background-color: #fff; /* Change background color to white */
+  color: #faf8f8; /* Change text color to a darker shade for contrast */
+  border: none;
+  outline: none;
+  font-size: 16px;
+}
+
+.button {
+  background-color: #978fa8;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-gray-900
+}
+
+.button:hover {
+  background-color: rgba(52, 52, 72, 0.572);
+}

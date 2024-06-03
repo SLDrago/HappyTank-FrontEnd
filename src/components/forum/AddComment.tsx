@@ -7,6 +7,7 @@ function AddComment({
   loading,
   setLoading,
   replyData,
+  parentPost,
   callBackAddComment,
 }: any) {
   const [msg, setMsg] = useState("");
@@ -21,12 +22,13 @@ function AddComment({
     if (msg?.trim() !== "") {
       setLoading(true);
       if (!replyData) {
-        callBackAddComment({ action: "comment", data: msg });
+        callBackAddComment({ action: "comment", data: msg, parentPost });
       } else {
         callBackAddComment({
           action: "reply",
           data: msg,
           parentComment: replyData,
+          parentPost,
         });
       }
     }
@@ -34,7 +36,7 @@ function AddComment({
 
   return (
     <>
-      <div className="w-full md:w-3/4 mx-auto px-2 md:px-0">
+      <div className="w-full md:w-2/3 mx-auto px-2 md:px-0">
         <div className="flex items-center gap-4 mt-10 p-2 border border-gray-900/10 bg-gray-900/5 rounded-[99px]">
           {userInfo?.img?.trim() !== "" ? (
             <Avatar
