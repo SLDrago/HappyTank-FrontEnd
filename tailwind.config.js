@@ -1,5 +1,5 @@
 const withMT = require("@material-tailwind/react/utils/withMT");
-
+const tailwindForms = require("@tailwindcss/forms");
 module.exports = withMT({
   content: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
   theme: {
@@ -23,5 +23,5 @@ module.exports = withMT({
       },
     },
   },
-  plugins: [],
+  plugins: [tailwindForms],
 });
