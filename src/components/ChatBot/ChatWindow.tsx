@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ChatHeader from "./ChatHeader";
 import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
@@ -10,6 +10,18 @@ const ChatWindow: React.FC = () => {
     { sender: "AI" | "You"; message: string }[]
   >([]);
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && messages.length === 0) {
+      setMessages([
+        {
+          sender: "AI",
+          message:
+            "Hello! How can I assist you today? If you have any thing to know about fish, you can ask from me.",
+        },
+      ]);
+    }
+  }, [isOpen, messages.length]);
 
   const handleSendMessage = async (message: string) => {
     setMessages((prevMessages) => [
