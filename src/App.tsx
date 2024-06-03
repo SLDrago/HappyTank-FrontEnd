@@ -14,6 +14,7 @@ import Advertisement from "./pages/Advertisement";
 import ProductPage from "./pages/Advertisement/ProductPage";
 import CompatibilityTool from "./pages/compatabilityTool/compatibility-tool";
 import FIshCompatibilityResult from "./pages/compatabilityTool/fish-compatability-result";
+import Forum from "./pages/Forum/forum-file";
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -128,11 +129,12 @@ function App() {
           path="/forum/forum-file"
           element={
             <>
-              <PageTitle title="forum | HappyTank" />
-              <SignIn />
+              <PageTitle title="Forum | HappyTank" />
+              <Forum />
             </>
           }
         />
+
         <Route
           path="*"
           element={
