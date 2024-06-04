@@ -12,6 +12,7 @@ import ResetPW from "./pages/Authentication/ResetPW";
 import FishSearch from "./pages/Search/Search";
 import Advertisement from "./pages/Advertisement";
 import ProductPage from "./pages/Advertisement/ProductPage";
+import Products from "./pages/Advertisement/Products";
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -90,6 +91,15 @@ function App() {
             <>
               <PageTitle title="Adverticement Platform | HappyTank" />
               <Advertisement />
+            </>
+          }
+        />
+        <Route
+          path="/adverticements/products"
+          element={
+            <>
+              <PageTitle title="Adverticement Platform | HappyTank" />
+              <Products />
             </>
           }
         />

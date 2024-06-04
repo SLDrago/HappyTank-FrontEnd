@@ -66,7 +66,7 @@ const AdCard: React.FC<AdCardProps> = ({
   price,
 }) => {
   const truncatedDescription = truncateText(description, 100);
-  const displayPrice = !price || price === "0.00" ? "Free" : `$${price}`;
+  const displayPrice = !price || price === "0.00" ? "Free" : `Rs. ${price}`;
 
   if (rating > 5) {
     rating = 5;
