@@ -4,8 +4,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useState } from "react";
 import { createSearchParams, useNavigate } from "react-router-dom";
-import HappyTankAPISvc from "../../services/happyTank-svc";
-import Loader from "../../common/Loader";
+import { Button, Input, Typography } from "@material-tailwind/react";
 
 const defaultValues = {
   name1: "",
@@ -71,55 +70,61 @@ export function CompatibilityTool() {
           <section className="grid p-8 bg-gray-100">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
               <div className="col-span-1 lg:col-span-5 p-8 lg:p-12 bg-white shadow-lg rounded-lg">
-                <h1 className="text-3xl lg:text-4xl font-bold mb-4 text-gray-800 leading-relaxed text-center">
+                <Typography
+                  variant="h1"
+                  className="text-3xl lg:text-4xl text-center"
+                >
                   Do you want to see what your aquarium will look like?
-                </h1>
+                </Typography>
               </div>
 
-              <div className="form-fields col-span-1 lg:col-span-7 p-8 lg:p-12 bg-white shadow-lg rounded-lg flex flex-col justify-center">
-                <h2 className="text-2xl font-semibold mb-4 text-gray-700">
+              <div className="col-span-1 lg:col-span-7 p-8 lg:p-12 bg-white shadow-lg rounded-lg flex flex-col justify-center">
+                <Typography
+                  variant={"h2"}
+                  className="text-2xl mb-4 text-gray-700"
+                >
                   Check Fish Compatibility
-                </h2>
-
-                <input
-                  type="text"
-                  id="name1"
-                  placeholder="Fish Name 1"
-                  className="field w-full p-2 mb-4 border border-gray-300 rounded"
-                  autoComplete="off"
-                  {...register("name1")}
-                />
-                {errors.name1 && (
-                  <p className="text-red-500">{errors.name1.message}</p>
-                )}
-                <input
-                  type="text"
-                  {...register("name2")}
-                  placeholder="Fish Name 2"
-                  autoComplete="off"
-                  className="field w-full p-2 mb-4 border border-gray-300 rounded"
-                />
-                {errors.name2 && (
-                  <p className="text-red-500">{errors.name2.message}</p>
-                )}
-
-                <input
-                  type="text"
-                  placeholder="Fish Name 3"
-                  autoComplete="off"
-                  className="field w-full p-2 mb-4 border border-gray-300 rounded"
-                  {...register("name3")}
-                />
-                {errors.name3 && (
-                  <p className="text-red-500">{errors.name3.message}</p>
-                )}
+                </Typography>
+                <div className="mb-3">
+                  <Input
+                    label="First Fish"
+                    type="text"
+                    id="name1"
+                    className=" mb-8"
+                    autoComplete="off"
+                    {...register("name1")}
+                  />
+                  {errors.name1 && (
+                    <p className="text-red-500">{errors.name1.message}</p>
+                  )}
+                </div>
+                <div className="mb-3">
+                  <Input
+                    label="Second Fish"
+                    type="text"
+                    {...register("name2")}
+                    autoComplete="off"
+                    className="mb-4"
+                  />
+                  {errors.name2 && (
+                    <p className="text-red-500">{errors.name2.message}</p>
+                  )}
+                </div>
+                <div className="mb-3">
+                  <Input
+                    label="Third Fish"
+                    type="text"
+                    autoComplete="off"
+                    className="mb-4"
+                    {...register("name3")}
+                  />
+                  {errors.name3 && (
+                    <p className="text-red-500">{errors.name3.message}</p>
+                  )}
+                </div>
 
                 <div className="submit-ctx">
-                  <button
-                    type="submit"
-                    className="submit-btn bg-indigo-500 text-white p-2 rounded w-full flex items-center justify-center disabled:opacity-50"
-                    disabled={loading}
-                  >
+                  <Button type="submit" className="" disabled={loading}>
                     {loading && (
                       <svg
                         aria-hidden="true"
@@ -139,7 +144,7 @@ export function CompatibilityTool() {
                       </svg>
                     )}
                     Submit
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
