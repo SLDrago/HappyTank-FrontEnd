@@ -149,7 +149,10 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
         color="blue-gray"
         className="p-1 font-normal"
       >
-        <NavLink to="/compatibility" className="flex items-center">
+        <NavLink
+          to="/compatibility/compatibility-tool"
+          className="flex items-center"
+        >
           Compatibility Tool
         </NavLink>
       </Typography>
@@ -169,7 +172,7 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
         color="blue-gray"
         className="p-1 font-normal"
       >
-        <NavLink to="/forum" className="flex items-center">
+        <NavLink to="/Forum/forum-file" className="flex items-center">
           Forum
         </NavLink>
       </Typography>
