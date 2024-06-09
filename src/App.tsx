@@ -15,6 +15,7 @@ import ProductPage from "./pages/Advertisement/ProductPage";
 import CompatibilityTool from "./pages/compatabilityTool/compatibility-tool";
 import FIshCompatibilityResult from "./pages/compatabilityTool/fish-compatability-result";
 import Forum from "./pages/Forum/forum-file";
+import Products from "./pages/Advertisement/Products";
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -93,6 +94,15 @@ function App() {
             <>
               <PageTitle title="Adverticement Platform | HappyTank" />
               <Advertisement />
+            </>
+          }
+        />
+        <Route
+          path="/adverticements/products"
+          element={
+            <>
+              <PageTitle title="Adverticement Platform | HappyTank" />
+              <Products />
             </>
           }
         />
