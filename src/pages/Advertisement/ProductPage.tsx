@@ -5,6 +5,7 @@ import {
   Rating,
   Typography,
 } from "@material-tailwind/react";
+import { useState } from "react";
 import { HeartIcon } from "@heroicons/react/24/outline";
 import AdCard from "../../components/Advertisement/AdCard";
 import CardReview from "../../components/Advertisement/CardReview";
@@ -13,6 +14,7 @@ import DefaultLayout from "../../layout/default_layout";
 import SearchBox from "../../components/SearchBox/SearchBox";
 import ProductImage from "../../components/Advertisement/ProductImage";
 import MapCard from "../../components/Advertisement/MapCard";
+import ReviewModal from "../../components/ReviewModel/ReviewModel";
 
 const CONTENTS = [
   {
@@ -42,6 +44,7 @@ export function ProductPage() {
   const handleSearch = (query: string) => {
     console.log("Search query:", query);
   };
+  const [isModalOpen, setIsModalOpen] = useState(false);
   return (
     <>
       <DefaultLayout>
@@ -79,11 +82,15 @@ export function ProductPage() {
                 <Button color="gray" className="w-52">
                   Contact Shop
                 </Button>
+                <Button color="blue-gray" className="w-52" onClick={() => setIsModalOpen(true)}>
+                  Add Review
+                </Button>
                 <IconButton color="gray" variant="text" className="shrink-0">
                   <HeartIcon className="h-6 w-6" />
                 </IconButton>
               </div>
             </div>
+            <ReviewModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
             <div className="container mx-auto p-4">
               {/* Product Description */}
               <div className="mt-6">
