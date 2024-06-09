@@ -9,11 +9,13 @@ import {
 } from "@material-tailwind/react";
 import { NavLink } from "react-router-dom";
 import Logo from "../../images/Logos/logo-blacktext.svg";
+import AddAdvertisementModal from "../../components/AdvertismentModel/AddAdvertismentModal";
 
 const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [openNav, setOpenNav] = React.useState(false);
   const [isLoggedIn, setIsLoggedIn] = React.useState(true);
   const [openProfileMenu, setOpenProfileMenu] = useState(false);
+  const [openAdModal, setOpenAdModal] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const isMobile = useMediaQuery({ maxWidth: 960 });
 
@@ -80,14 +82,14 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
             style={{
               right:
                 profileMenuRef.current &&
-                window.innerWidth -
+                  window.innerWidth -
                   profileMenuRef.current.getBoundingClientRect().right >
                   0
                   ? "auto"
                   : "0",
               left:
                 profileMenuRef.current &&
-                window.innerWidth -
+                  window.innerWidth -
                   profileMenuRef.current.getBoundingClientRect().right >
                   0
                   ? profileMenuRef.current.getBoundingClientRect().left + "px"
@@ -97,6 +99,7 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
             <button
               role="menuitem"
               className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+              onClick={() => setOpenAdModal(true)} // Open modal on click
             >
               Add Advertisement
             </button>
@@ -266,6 +269,7 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
                   <button
                     role="menuitem"
                     className="block px-4 py-2 text-sm text-gray-800 hover:bg-gray-100 w-full text-left"
+                    onClick={() => setOpenAdModal(true)}
                   >
                     Add Advertisement
                   </button>
@@ -300,6 +304,10 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
           )}
         </Collapse>
       </Navbar>
+      <AddAdvertisementModal
+        open={openAdModal}
+        handleClose={() => setOpenAdModal(false)}
+      />
       <div className="mx-auto">{children}</div>
     </div>
   );
