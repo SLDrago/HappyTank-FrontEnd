@@ -16,7 +16,7 @@ const post = [
     description:
       "  Get started with this simple avatar example that comes with apre-set image, ensuring that your avatars look great from thestart. You can easily replace the default src with any image URLto display user-specific avatars.",
     created: "2024-05-03 14:33:45",
-    img: "https://docs.material-tailwind.com/img/face-2.jpg",
+    img: "https://wallpapers.com/images/high/red-discus-4k-ultra-hd-fish-ikfsr1cikojtpa30.webp",
     like: 3504,
     dislike: 582,
     userLike: true,
