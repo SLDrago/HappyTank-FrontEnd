@@ -11,7 +11,7 @@ interface GoldfishData {
 }
 
 export default function Search() {
-  const searched = 0; //1 for searched, 0 for not searched
+  const searched = 1; //1 for searched, 0 for not searched
   const fishName = "Gold Fish";
 
   const goldfishData: GoldfishData[] = [
