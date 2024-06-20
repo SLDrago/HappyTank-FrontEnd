@@ -1,37 +1,74 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Typography, Input, Button } from "@material-tailwind/react";
 import { EyeSlashIcon, EyeIcon } from "@heroicons/react/24/solid";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import { useAuth } from "../../context/AuthContext";
+
+const backEndURL = import.meta.env.VITE_LARAVEL_APP_URL;
 
 export function SignIn() {
+  const { login } = useAuth(); // Access login function from AuthContext
   const [passwordShown, setPasswordShown] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const togglePasswordVisiblity = () => setPasswordShown((cur) => !cur);
+  const navigate = useNavigate();
+
+  const togglePasswordVisibility = () =>
+    setPasswordShown((current) => !current);
 
   const signInSchema = Yup.object().shape({
     email: Yup.string().email().required("Email is required"),
     password: Yup.string().required("Password is required"),
   });
 
-  const handleSubmit = async (event) => {
+  const getDeviceName = (): string => {
+    const userAgent = navigator.userAgent.toLowerCase();
+    if (userAgent.includes("mobile")) {
+      return "mobile";
+    } else if (userAgent.includes("tablet")) {
+      return "tablet";
+    } else {
+      return "desktop";
+    }
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const formData = new FormData(event.target);
-    const email = formData.get("email");
-    const password = formData.get("password");
+    const form = new FormData(event.currentTarget);
+    const email = form.get("email");
+    const password = form.get("password");
+    const device_name = getDeviceName();
 
     try {
       await signInSchema.validate({ email, password }, { abortEarly: false });
-      // Here you can make your login API call
-      // If login fails, setErrorMessage("Email and password combination do not match");
+
+      const response = await fetch(`${backEndURL}/api/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password, device_name }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to login");
+      }
+
+      login(data.token, data.user);
+
+      navigate("/");
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
-        const errors = {};
+        const errors: { [key: string]: string } = {};
         error.inner.forEach((e) => {
-          errors[e.path] = e.message;
+          if (e.path) errors[e.path] = e.message;
         });
-        setErrorMessage(errors.email || errors.password);
+        setErrorMessage(errors.email || errors.password || "Validation error");
+      } else {
+        setErrorMessage(error.message || "Unknown error occurred");
       }
     }
   };
@@ -95,7 +132,7 @@ export function SignIn() {
               className="w-full placeholder:opacity-100 focus:border-t-primary border-t-blue-gray-200"
               type={passwordShown ? "text" : "password"}
               icon={
-                <i onClick={togglePasswordVisiblity}>
+                <i onClick={togglePasswordVisibility}>
                   {passwordShown ? (
                     <EyeIcon className="h-5 w-5" />
                   ) : (
@@ -113,7 +150,7 @@ export function SignIn() {
             fullWidth
             type="submit"
           >
-            sign in
+            Sign In
           </Button>
           <div className="!mt-4 flex justify-end">
             <NavLink to="/forget-password">
@@ -137,7 +174,7 @@ export function SignIn() {
               alt="google"
               className="h-6 w-6"
             />{" "}
-            sign in with google
+            Sign in with Google
           </Button>
           <Typography
             variant="small"
@@ -145,7 +182,7 @@ export function SignIn() {
             className="!mt-4 text-center font-normal"
           >
             Not registered?{" "}
-            <NavLink to="/signup" className="font-semibold text-gray-90">
+            <NavLink to="/signup" className="font-semibold text-gray-900">
               Create account
             </NavLink>
           </Typography>

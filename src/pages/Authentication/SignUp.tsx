@@ -1,15 +1,23 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Typography, Input, Button } from "@material-tailwind/react";
 import { EyeSlashIcon, EyeIcon } from "@heroicons/react/24/solid";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import UserShopRadio from "../../components/Authentication/UserShopRadio";
 import { useFormik } from "formik";
 import FormValidateErrorMsg from "../../components/Verification/FormValidationErrorMsg";
 import * as Yup from "yup";
+import axios from "axios";
+import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import { useAuth } from "../../context/AuthContext";
+
+const backEndURL = import.meta.env.VITE_LARAVEL_APP_URL;
 
 export function SignUp() {
   const [passwordShown, setPasswordShown] = useState(false);
   const [confirmPasswordShown, setConfirmPasswordShown] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const togglePasswordVisibility = () => {
     setPasswordShown(!passwordShown);
@@ -24,20 +32,32 @@ export function SignUp() {
     password: Yup.string()
       .min(8, "Password must be at least 8 characters")
       .required("Required"),
-    confirmPassword: Yup.string()
+    password_confirmation: Yup.string()
       .oneOf([Yup.ref("password"), undefined], "Passwords must match")
       .required("Required"),
+    name: Yup.string().required("Required"),
+    role: Yup.string().required("Please select User or Shop"),
   });
 
   const formik = useFormik({
     initialValues: {
       email: "",
       password: "",
-      confirmPassword: "",
+      password_confirmation: "",
+      name: "",
+      role: "",
     },
     validationSchema,
-    onSubmit: (values) => {
-      console.log("Form data", values);
+    onSubmit: async (values) => {
+      try {
+        const response = await axios.post(`${backEndURL}/api/register`, values);
+        const data = response.data;
+        login(data.token, data.user);
+        navigate("/");
+      } catch (error: any) {
+        console.error("Registration failed.", error.response.data);
+        setErrorMessage("Registration failed. Please try again.");
+      }
     },
   });
 
@@ -50,12 +70,47 @@ export function SignUp() {
         <Typography className="mb-16 text-gray-600 font-normal text-[18px]">
           Enter your email and password to register.
         </Typography>
+        {errorMessage && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-16 py-2 rounded-md mb-4 flex items-center justify-center w-fit text-center m-auto">
+            <ExclamationTriangleIcon className="h-5 w-5 mr-2" />
+            <Typography variant="small">{errorMessage}</Typography>
+          </div>
+        )}
         <form
           onSubmit={formik.handleSubmit}
           className="mx-auto max-w-[24rem] text-left"
         >
           <div className="mb-4">
-            <UserShopRadio name="userShopSelection" />
+            <UserShopRadio
+              name="role"
+              onChange={(value) => formik.setFieldValue("role", value)}
+            />
+            {formik.touched.role && formik.errors.role ? (
+              <FormValidateErrorMsg message={formik.errors.role} />
+            ) : null}
+          </div>
+          <div className="mb-4">
+            <label htmlFor="name">
+              <Typography
+                variant="small"
+                className="mb-2 block font-medium text-gray-900"
+              >
+                Your Name
+              </Typography>
+            </label>
+            <Input
+              id="name"
+              color="gray"
+              size="lg"
+              type="text"
+              placeholder="Samantha Smith"
+              className="w-full placeholder:opacity-100 focus:border-t-primary border-t-blue-gray-200"
+              labelProps={{ className: "hidden" }}
+              {...formik.getFieldProps("name")}
+            />
+            {formik.touched.name && formik.errors.name ? (
+              <FormValidateErrorMsg message={formik.errors.name} />
+            ) : null}
           </div>
           <div className="mb-4">
             <label htmlFor="email">
@@ -71,7 +126,6 @@ export function SignUp() {
               color="gray"
               size="lg"
               type="email"
-              name="email"
               placeholder="name@mail.com"
               className="w-full placeholder:opacity-100 focus:border-t-primary border-t-blue-gray-200"
               labelProps={{ className: "hidden" }}
@@ -91,6 +145,7 @@ export function SignUp() {
               </Typography>
             </label>
             <Input
+              id="password"
               size="lg"
               placeholder="********"
               labelProps={{ className: "hidden" }}
@@ -121,6 +176,7 @@ export function SignUp() {
               </Typography>
             </label>
             <Input
+              id="password_confirmation"
               size="lg"
               placeholder="********"
               labelProps={{ className: "hidden" }}
@@ -135,10 +191,13 @@ export function SignUp() {
                   )}
                 </i>
               }
-              {...formik.getFieldProps("confirmPassword")}
+              {...formik.getFieldProps("password_confirmation")}
             />
-            {formik.touched.confirmPassword && formik.errors.confirmPassword ? (
-              <FormValidateErrorMsg message={formik.errors.confirmPassword} />
+            {formik.touched.password_confirmation &&
+            formik.errors.password_confirmation ? (
+              <FormValidateErrorMsg
+                message={formik.errors.password_confirmation}
+              />
             ) : null}
           </div>
           <div className="inline-flex items-center">
@@ -187,27 +246,6 @@ export function SignUp() {
             fullWidth
           >
             Register Now
-          </Button>
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="bg-white px-2 text-gray-500">OR</span>
-            </div>
-          </div>
-          <Button
-            variant="outlined"
-            size="lg"
-            className="mt-6 flex h-12 items-center justify-center gap-2"
-            fullWidth
-          >
-            <img
-              src={`https://www.material-tailwind.com/logos/logo-google.png`}
-              alt="google"
-              className="h-6 w-6"
-            />{" "}
-            sign up with google
           </Button>
         </form>
       </div>
