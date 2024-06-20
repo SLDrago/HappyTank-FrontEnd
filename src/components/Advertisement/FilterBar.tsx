@@ -1,23 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Input, Select, Option, Button, Card } from "@material-tailwind/react";
 import { MagnifyingGlassIcon, FunnelIcon } from "@heroicons/react/20/solid";
+//import axios from "axios";
 
-const categories = [
-  "Everything",
-  "Electronics",
-  "Books",
-  "Clothing",
-  "Home",
-  "Toys",
-];
-const locations = [
-  "Any Place",
-  "New York",
-  "Los Angeles",
-  "Chicago",
-  "Houston",
-  "Phoenix",
-];
+//const backEndUrl = import.meta.env.VITE_LARAVEL_APP_URL;
 
 const useWindowSize = () => {
   const [size, setSize] = useState<[number, number]>([
@@ -39,20 +25,28 @@ const useWindowSize = () => {
 };
 
 interface FilterBarProps {
-  onFilter: (filters: {
-    searchTerm: string;
-    category: string;
-    priceRange: string;
-    location: string;
-  }) => void;
+  onFilter: (
+    filters: {
+      searchTerm: string;
+      category: string | null;
+      minPrice: number | null;
+      maxPrice: number | null;
+      city: string | null;
+    },
+    categoryName: string
+  ) => void;
 }
 
 const FilterBar: React.FC<FilterBarProps> = ({ onFilter }) => {
+  // const [categories, setCategories] = useState<{ id: number; name: string }[]>(
+  //   []
+  // );
+  // const [cities, setCities] = useState<{ id: string; name: string }[]>([]);
   const [category, setCategory] = useState<string>("");
   const [priceRange, setPriceRange] = useState<string>("");
-  const [location, setLocation] = useState<string>("");
+  const [city, setCity] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [isExpanded, setIsExpanded] = useState<boolean>(false);
+  const [isExpanded, setIsExpanded] = useState<boolean>(true);
   const [width] = useWindowSize();
 
   const isMobile = width <= 768;
@@ -65,6 +59,27 @@ const FilterBar: React.FC<FilterBarProps> = ({ onFilter }) => {
     }
   }, [isMobile]);
 
+  // useEffect(() => {
+  //   // Fetch categories and cities from the backend
+  //   axios
+  //     .get(`${backEndUrl}/api/getCategories`)
+  //     .then((response) => {
+  //       setCategories(response.data.data);
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error fetching categories:", error);
+  //     });
+
+  //   axios
+  //     .get(`${backEndUrl}/api/getAllCities`)
+  //     .then((response) => {
+  //       setCities(response.data.data);
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error fetching cities:", error);
+  //     });
+  // }, []);
+
   const handleCategoryChange = (value: string) => {
     setCategory(value);
   };
@@ -73,8 +88,8 @@ const FilterBar: React.FC<FilterBarProps> = ({ onFilter }) => {
     setPriceRange(value);
   };
 
-  const handleLocationChange = (value: string) => {
-    setLocation(value);
+  const handleCityChange = (value: string) => {
+    setCity(value);
   };
 
   const handleSearchTermChange = (
@@ -84,15 +99,45 @@ const FilterBar: React.FC<FilterBarProps> = ({ onFilter }) => {
   };
 
   const handleFilter = () => {
+    let minPrice: number | null = null;
+    let maxPrice: number | null = null;
+
+    if (priceRange) {
+      const priceParts = priceRange.split("-");
+      if (priceParts.length === 2) {
+        minPrice = parseFloat(priceParts[0]);
+        maxPrice = parseFloat(priceParts[1]);
+      } else if (priceRange.endsWith("+")) {
+        minPrice = parseFloat(priceRange.slice(0, -1));
+      }
+    }
+
     const filters = {
       searchTerm,
       category,
-      priceRange,
-      location,
+      minPrice,
+      maxPrice,
+      city,
     };
-    onFilter(filters);
+
+    const selectedCategoryName = getCategoryName(category);
+    onFilter(filters, selectedCategoryName);
   };
 
+  const getCategoryName = (categoryId: string) => {
+    const categoryMap: { [key: string]: string } = {
+      "2": "Aquariums And Tanks",
+      "9": "Breeding Supplies",
+      "7": "Decorations And Substrate",
+      "3": "Equipment",
+      "1": "Fish",
+      "5": "Foods",
+      "8": "Maintenance Tools",
+      "6": "Medicines And Supplements",
+      "4": "Water Treatment Products",
+    };
+    return categoryMap[categoryId] || "All";
+  };
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
   };
@@ -130,11 +175,22 @@ const FilterBar: React.FC<FilterBarProps> = ({ onFilter }) => {
               value={category}
               onChange={(value) => handleCategoryChange(value || "")}
             >
-              {categories.map((category) => (
-                <Option value={category} key={category}>
-                  {category}
+              <Option value="">No Filter</Option>
+              <Option value="2">AquariumsAndTanks</Option>
+              <Option value="9">BreedingSupplies</Option>
+              <Option value="7">DecorationsAndSubstrate</Option>
+              <Option value="3">Equipment</Option>
+              <Option value="1">Fish</Option>
+              <Option value="5">Foods</Option>
+              <Option value="8">MaintenanceTools</Option>
+              <Option value="6">MedicinesAndSupplements</Option>
+              <Option value="4">WaterTreatmentProducts</Option>
+
+              {/* {categories.map((category) => (
+                <Option value={String(category.id)} key={category.id}>
+                  {category.name}
                 </Option>
-              ))}
+              ))} */}
             </Select>
             <Select
               size="md"
@@ -143,7 +199,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ onFilter }) => {
               onChange={(val) => handlePriceChange(val || "")}
               className="w-full"
             >
-              <Option value="No Range">No Range</Option>
+              <Option value="">No Range</Option>
               <Option value="0-50">Rs. 0 - Rs. 50</Option>
               <Option value="51-100">Rs. 51 - Rs. 100</Option>
               <Option value="101-500">Rs. 101 - Rs. 500</Option>
@@ -152,16 +208,42 @@ const FilterBar: React.FC<FilterBarProps> = ({ onFilter }) => {
             </Select>
             <Select
               size="md"
-              label="Location"
-              value={location}
-              onChange={(value) => handleLocationChange(value || "")}
+              label="City"
+              value={city}
+              onChange={(value) => handleCityChange(String(value))}
               className="w-full"
             >
-              {locations.map((location) => (
-                <Option key={location} value={location}>
-                  {location}
-                </Option>
-              ))}
+              <Option value="">No Filter</Option>
+              <Option value="1">Colombo</Option>
+              <Option value="2">Mount Lavinia</Option>
+              <Option value="3">Kesbewa</Option>
+              <Option value="4">Maharagama</Option>
+              <Option value="5">Moratuwa</Option>
+              <Option value="6">Ratnapura</Option>
+              <Option value="7">Negombo</Option>
+              <Option value="8">Kandy</Option>
+              <Option value="9">Sri Jayewardenepura Kotte</Option>
+              <Option value="10">Kalmunai</Option>
+              <Option value="11">Trincomalee</Option>
+              <Option value="12">Galle</Option>
+              <Option value="13">Jaffna</Option>
+              <Option value="14">Athurugiriya</Option>
+              <Option value="15">Weligama</Option>
+              <Option value="16">Matara</Option>
+              <Option value="17">Kolonnawa</Option>
+              <Option value="18">Gampaha</Option>
+              <Option value="19">Puttalam</Option>
+              <Option value="20">Badulla</Option>
+              <Option value="21">Kalutara</Option>
+              <Option value="22">Bentota</Option>
+              <Option value="23">Mannar</Option>
+              <Option value="24">Kurunegala</Option>
+
+              {/* {cities.map((city) => (
+              <Option key={city.id} value={city.id.toString()}>
+                {city.name}
+              </Option>
+              ))} */}
             </Select>
             <Button
               size="md"

@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogHeader,
@@ -13,6 +12,14 @@ import {
   IconButton,
   Typography,
 } from "@material-tailwind/react";
+import axios from "axios";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+interface Category {
+  id: number;
+  name: string;
+}
 
 interface AddAdvertisementModalProps {
   open: boolean;
@@ -28,10 +35,27 @@ const AddAdvertisementModal: React.FC<AddAdvertisementModalProps> = ({
   const [description, setDescription] = useState("");
   const [images, setImages] = useState<File[]>([]);
   const [price, setPrice] = useState("");
-  const [category, setCategory] = useState("");
+  const [priceBasedOn, setPriceBasedOn] = useState("");
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [tags, setTags] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get(
+          "http://127.0.0.1:8000/api/getCategories"
+        );
+        setCategories(response.data.data);
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -39,7 +63,6 @@ const AddAdvertisementModal: React.FC<AddAdvertisementModalProps> = ({
       const validImages = selectedFiles.filter((file) =>
         file.type.startsWith("image/")
       );
-
       if (selectedFiles.length !== validImages.length) {
         setImageError("Only image files are allowed.");
       } else {
@@ -59,16 +82,58 @@ const AddAdvertisementModal: React.FC<AddAdvertisementModalProps> = ({
     setImages(images.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (images.length < 2) {
       setError("You must upload at least 2 images.");
     } else if (images.length > 5) {
       setError("You can upload a maximum of 5 images.");
     } else {
       setError(null);
-      // Handle form submission logic here
-      handleClose();
+
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("small_description", smallDescription);
+      formData.append("description", description);
+      formData.append("price", price);
+      formData.append("price_based_on", priceBasedOn);
+      formData.append("category_id", selectedCategory?.toString() || "");
+      formData.append("tags", tags);
+      images.forEach((image) => formData.append("image_url[]", image));
+
+      try {
+        const response = await axios.post(
+          "http://127.0.0.1:8000/api/advertisement/addAdvertisement",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+          }
+        );
+
+        toast.success("Advertisement added successfully.");
+        console.log("Advertisement added successfully:", response.data);
+        handleClose();
+      } catch (error) {
+        toast.error("Failed to add advertisement. Please try again.");
+        console.error("Failed to add advertisement:", error);
+        setError("Failed to add advertisement. Please try again.");
+      }
     }
+  };
+
+  const handleClear = () => {
+    setTitle("");
+    setSmallDescription("");
+    setDescription("");
+    setImages([]);
+    setPrice("");
+    setPriceBasedOn("");
+    setSelectedCategory(null);
+    setTags("");
+    setError(null);
+    setImageError(null);
   };
 
   return (
@@ -184,21 +249,21 @@ const AddAdvertisementModal: React.FC<AddAdvertisementModalProps> = ({
             value={price}
             onChange={(e) => setPrice(e.target.value)}
           />
-          <Select
+          <Input
             label="Price Based on"
-            value={category}
-            onChange={(e) => setCategory(e)}
-          >
-            <Option value="category1">Type 1</Option>
-            <Option value="category2">Type 2</Option>
-          </Select>
+            value={priceBasedOn}
+            onChange={(e) => setPriceBasedOn(e.target.value)}
+          />
           <Select
             label="Category"
-            value={category}
-            onChange={(e) => setCategory(e)}
+            value={selectedCategory?.toString()}
+            onChange={(val) => setSelectedCategory(Number(val))}
           >
-            <Option value="category1">Category 1</Option>
-            <Option value="category2">Category 2</Option>
+            {categories.map((category) => (
+              <Option key={category.id} value={category.id.toString()}>
+                {category.name}
+              </Option>
+            ))}
           </Select>
           <Input
             label="Tags"
@@ -207,7 +272,15 @@ const AddAdvertisementModal: React.FC<AddAdvertisementModalProps> = ({
           />
         </div>
       </DialogBody>
-      <DialogFooter>
+      <DialogFooter className="gap-4">
+        <Button
+          className="shadow-gray-400 hover:shadow-brown-400"
+          variant="gradient"
+          color="blue-gray"
+          onClick={handleClear}
+        >
+          Clear
+        </Button>
         <Button
           className="shadow-gray-400 hover:shadow-brown-400"
           variant="gradient"
