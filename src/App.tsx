@@ -89,28 +89,28 @@ function App() {
           }
         />
         <Route
-          path="/adverticements"
+          path="/advertisements"
           element={
             <>
-              <PageTitle title="Adverticement Platform | HappyTank" />
+              <PageTitle title="Advertisement Platform | HappyTank" />
               <Advertisement />
             </>
           }
         />
         <Route
-          path="/adverticements/products"
+          path="/advertisements/products"
           element={
             <>
-              <PageTitle title="Adverticement Platform | HappyTank" />
+              <PageTitle title="Advertisement Platform | HappyTank" />
               <Products />
             </>
           }
         />
         <Route
-          path="/adverticements/product-page"
+          path="/advertisements/products/*"
           element={
             <>
-              <PageTitle title="Adverticement Platform | HappyTank" />
+              <PageTitle title="Advertisement Platform | HappyTank" />
               <ProductPage />
             </>
           }
