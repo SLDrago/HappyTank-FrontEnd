@@ -13,6 +13,8 @@ import FishSearch from "./pages/Search/Search";
 import Advertisement from "./pages/Advertisement";
 import ProductPage from "./pages/Advertisement/ProductPage";
 import Products from "./pages/Advertisement/Products";
+import ProfilePage from "./pages/Settings/ProfilePage";
+import ManageAdvertisementPage from "./pages/Settings/ManageAdvertisment";
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -103,12 +105,31 @@ function App() {
             </>
           }
         />
+
         <Route
           path="/adverticements/product-page"
           element={
             <>
               <PageTitle title="Adverticement Platform | HappyTank" />
               <ProductPage />
+            </>
+          }
+        />
+        <Route
+          path="/settings/profile"
+          element={
+            <>
+              <PageTitle title="Settings | HappyTank" />
+              <ProfilePage />
+            </>
+          }
+        />
+        <Route
+          path="/settings/advertisements"
+          element={
+            <>
+              <PageTitle title="Settings | HappyTank" />
+              <ManageAdvertisementPage />
             </>
           }
         />
