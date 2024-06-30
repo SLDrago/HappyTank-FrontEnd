@@ -16,6 +16,7 @@ import CompatibilityTool from "./pages/compatabilityTool/compatibility-tool";
 import FIshCompatibilityResult from "./pages/compatabilityTool/fish-compatability-result";
 import Forum from "./pages/Forum/forum-file";
 import Products from "./pages/Advertisement/Products";
+import AdditionalDetails from "./pages/AdditionalDetails/AdditionalDeatails";
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -76,6 +77,15 @@ function App() {
             <>
               <PageTitle title="Reset Password | HappyTank" />
               <ResetPW />
+            </>
+          }
+        />
+        <Route
+          path="/additionaldetails"
+          element={
+            <>
+              <PageTitle title="Additional Details | HappyTank" />
+              <AdditionalDetails />
             </>
           }
         />

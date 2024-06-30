@@ -53,7 +53,7 @@ export function SignUp() {
         const response = await axios.post(`${backEndURL}/api/register`, values);
         const data = response.data;
         login(data.token, data.user);
-        navigate("/");
+        navigate("/additionaldetails");
       } catch (error: any) {
         console.error("Registration failed.", error.response.data);
         setErrorMessage("Registration failed. Please try again.");

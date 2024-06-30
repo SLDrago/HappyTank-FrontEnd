@@ -59,7 +59,7 @@ export function SignIn() {
 
       login(data.token, data.user);
 
-      navigate("/");
+      navigate("/additionaldetails");
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
         const errors: { [key: string]: string } = {};
