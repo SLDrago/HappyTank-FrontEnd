@@ -191,6 +191,7 @@ const AdditionalDetails: React.FC = () => {
         },
       });
       toast.success("Submited successfully!");
+      navigate("/");
     } catch (error) {
       toast.error("Error submitting form");
     }
