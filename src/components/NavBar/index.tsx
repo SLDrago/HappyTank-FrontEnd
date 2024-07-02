@@ -8,7 +8,7 @@ import {
   Collapse,
   Spinner,
 } from "@material-tailwind/react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import Logo from "../../images/Logos/logo-blacktext.svg";
 import AddAdvertisementModal from "../../components/AdvertismentModel/AddAdvertismentModal";
 import UserAdditionalDetailsModel from "../AdditionalDetailsModel/UserAdditionalDetailsModel";
@@ -28,6 +28,7 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
   const isMobile = useMediaQuery({ maxWidth: 960 });
   const { user, token, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -189,6 +190,18 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
     </div>
   );
 
+  const isActive = (path: string) => {
+    if (path === "/advertisements") {
+      return (
+        location.pathname === path || location.pathname.startsWith(`${path}/`)
+      );
+    }
+    if (path === "/compatibility/compatibility-tool") {
+      return location.pathname.startsWith("/compatibility");
+    }
+    return location.pathname === path;
+  };
+
   const navList = (
     <ul className="mt-2 mb-4 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6">
       <Typography
@@ -197,7 +210,12 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
         color="blue-gray"
         className="p-1 font-normal"
       >
-        <NavLink to="/" className="flex items-center">
+        <NavLink
+          to="/"
+          className={`flex items-center ${
+            isActive("/") ? "font-bold text-blue-500" : ""
+          }`}
+        >
           Home
         </NavLink>
       </Typography>
@@ -207,7 +225,12 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
         color="blue-gray"
         className="p-1 font-normal"
       >
-        <NavLink to="/advertisements" className="flex items-center">
+        <NavLink
+          to="/advertisements"
+          className={`flex items-center ${
+            isActive("/advertisements") ? "font-bold text-blue-500" : ""
+          }`}
+        >
           Advertisement Platform
         </NavLink>
       </Typography>
@@ -219,7 +242,11 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
       >
         <NavLink
           to="/compatibility/compatibility-tool"
-          className="flex items-center"
+          className={`flex items-center ${
+            isActive("/compatibility/compatibility-tool")
+              ? "font-bold text-blue-500"
+              : ""
+          }`}
         >
           Compatibility Tool
         </NavLink>
@@ -230,7 +257,12 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
         color="blue-gray"
         className="p-1 font-normal"
       >
-        <NavLink to="/search" className="flex items-center">
+        <NavLink
+          to="/search"
+          className={`flex items-center ${
+            isActive("/search") ? "font-bold text-blue-500" : ""
+          }`}
+        >
           Fish Database
         </NavLink>
       </Typography>
@@ -240,7 +272,12 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
         color="blue-gray"
         className="p-1 font-normal"
       >
-        <NavLink to="/forum/forum-file" className="flex items-center">
+        <NavLink
+          to="/forum/forum-home"
+          className={`flex items-center ${
+            isActive("/forum/forum-home") ? "font-bold text-blue-500" : ""
+          }`}
+        >
           Forum
         </NavLink>
       </Typography>
