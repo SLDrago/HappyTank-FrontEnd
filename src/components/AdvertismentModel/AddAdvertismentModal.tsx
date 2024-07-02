@@ -12,6 +12,7 @@ import {
   IconButton,
   Typography,
 } from "@material-tailwind/react";
+import ReactQuill from "react-quill";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -113,12 +114,10 @@ const AddAdvertisementModal: React.FC<AddAdvertisementModalProps> = ({
         );
 
         toast.success("Advertisement added successfully.");
-        console.log("Advertisement added successfully:", response.data);
         handleClose();
       } catch (error) {
         toast.error("Failed to add advertisement. Please try again.");
-        console.error("Failed to add advertisement:", error);
-        setError("Failed to add advertisement. Please try again.");
+        handleClose();
       }
     }
   };
@@ -169,12 +168,14 @@ const AddAdvertisementModal: React.FC<AddAdvertisementModalProps> = ({
             value={smallDescription}
             onChange={(e) => setSmallDescription(e.target.value)}
           />
-          <Textarea
-            label="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="h-40"
-          />
+          <label>
+            Advertisement long Description:
+            <ReactQuill
+              value={description}
+              onChange={setDescription}
+              className="h-32 mb-14"
+            />
+          </label>
           <div>
             <Typography as={"small"} className="">
               Attach your images(2-5)

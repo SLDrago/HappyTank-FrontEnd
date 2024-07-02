@@ -14,7 +14,7 @@ import Advertisement from "./pages/Advertisement";
 import ProductPage from "./pages/Advertisement/ProductPage";
 import CompatibilityTool from "./pages/compatabilityTool/compatibility-tool";
 import FIshCompatibilityResult from "./pages/compatabilityTool/fish-compatability-result";
-import Forum from "./pages/Forum/forum-file";
+import Forum from "./pages/Forum/forum-home";
 import Products from "./pages/Advertisement/Products";
 import AdditionalDetails from "./pages/AdditionalDetails/AdditionalDeatails";
 
@@ -146,7 +146,7 @@ function App() {
         />
 
         <Route
-          path="/forum/forum-file"
+          path="/forum/forum-home"
           element={
             <>
               <PageTitle title="Forum | HappyTank" />
