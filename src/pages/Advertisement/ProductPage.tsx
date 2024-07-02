@@ -1,4 +1,20 @@
-import { Button, Rating, Typography, Spinner } from "@material-tailwind/react";
+import {
+  Button,
+  Rating,
+  Typography,
+  Spinner,
+  IconButton,
+  Popover,
+  PopoverHandler,
+  PopoverContent,
+  List,
+  ListItem,
+  ListItemPrefix,
+} from "@material-tailwind/react";
+import {
+  EllipsisVerticalIcon,
+  ExclamationTriangleIcon,
+} from "@heroicons/react/24/solid";
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import AdCard from "../../components/Advertisement/AdCard";
@@ -16,6 +32,8 @@ import ContactShopDialog from "../../components/Advertisement/ContactShopDialog"
 import StarRating from "../../components/Advertisement/StarRating";
 import AdCardSkeltons from "../../components/Advertisement/AdCardSkeltons";
 import { useAuth } from "../../context/AuthContext";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const backEndURL = import.meta.env.VITE_LARAVEL_APP_URL;
 
@@ -40,7 +58,10 @@ export function ProductPage() {
   const [relatedAdvertisements, setRelatedAdvertisements] = useState([]);
   const [relatedAdvertisementsLoading, setRelatedAdvertisementsLoading] =
     useState(false);
+  const [userRole, setUserRole] = useState(null);
+
   const { token } = useAuth();
+  const [isReporting, setIsReporting] = useState(false);
 
   // State for related advertisements pagination
   const [relatedCurrentPage, setRelatedCurrentPage] = useState(1);
@@ -205,6 +226,14 @@ export function ProductPage() {
     }
   }, [advertisement, id]);
 
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const userObject = JSON.parse(userData);
+      setUserRole(userObject.role);
+    }
+  }, []);
+
   // Function to fetch related advertisements with pagination
   const fetchRelatedAdvertisements = async (page = 1) => {
     if (advertisement) {
@@ -261,6 +290,70 @@ export function ProductPage() {
 
   const { phone_number, socialmedia_links, working_hours } = userInformation;
 
+  const handleReport = (report: string) => {
+    let reportReason = "";
+    switch (report) {
+      case "FalseInfo":
+        reportReason = "False Information";
+        break;
+      case "Fraud":
+        reportReason = "Scam/Fraud";
+        break;
+      case "ViolateTerms":
+        reportReason = "Violates Terms of Service";
+        break;
+      default:
+        toast.error("Invalid report reason");
+        return;
+    }
+
+    const makeReport = async () => {
+      setIsReporting(true);
+      try {
+        const response = await axios.post(
+          `${backEndURL}/api/report/addReport`,
+          {
+            content_type: "Advertisement",
+            content_id: id,
+            report_reason: reportReason,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        toast.success("Report Made Successfully!");
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          if (error.response?.status === 409) {
+            toast.warning(
+              error.response.data.message ||
+                "You have already reported this content"
+            );
+          } else if (error.response?.data?.errors) {
+            const errorMessages = Object.values(
+              error.response.data.errors
+            ).flat();
+            toast.error(errorMessages.join(", "));
+          } else {
+            toast.error(
+              error.response?.data?.message || "An unexpected error occurred"
+            );
+          }
+        } else {
+          toast.error("An unexpected error occurred. Please try again.");
+        }
+      } finally {
+        setIsReporting(false);
+      }
+    };
+
+    makeReport();
+  };
+
+  const isHTML = /<\/?[a-z][\s\S]*>/i.test(description);
+
   return (
     <>
       <DefaultLayout>
@@ -275,9 +368,16 @@ export function ProductPage() {
               <Typography className="mb-4" variant="h3">
                 {title}
               </Typography>
-              <Typography variant="h5" color="green">
-                Rs. {price}
-              </Typography>
+              {price == 0 && (
+                <Typography variant="h5" color="green">
+                  Free
+                </Typography>
+              )}
+              {price > 0 && (
+                <Typography variant="h5" color="green">
+                  Rs. {price}
+                </Typography>
+              )}
               <Typography variant="h6">
                 {advertisement.price_based_on}
               </Typography>
@@ -309,7 +409,7 @@ export function ProductPage() {
                 >
                   Contact Shop
                 </Button>
-                {token && (
+                {userRole === "user" && (
                   <Button
                     color="blue-gray"
                     className="w-52"
@@ -317,6 +417,76 @@ export function ProductPage() {
                   >
                     Add Review
                   </Button>
+                )}
+                {token && (
+                  <Popover placement="top">
+                    <PopoverHandler>
+                      <IconButton variant="text">
+                        <EllipsisVerticalIcon className="h-8 w-8" />
+                      </IconButton>
+                    </PopoverHandler>
+                    <PopoverContent className="">
+                      <Typography
+                        variant="h5"
+                        color="red"
+                        className="text-center"
+                      >
+                        Report Content
+                      </Typography>
+                      <hr className="my-2" />
+                      <List className="p-0">
+                        <button onClick={() => handleReport("FalseInfo")}>
+                          <ListItem>
+                            <ListItemPrefix>
+                              {!isReporting && (
+                                <ExclamationTriangleIcon className="h-4 w-4" />
+                              )}
+                              {isReporting && (
+                                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                                  <Spinner className="h-12 w-12" color="blue" />
+                                </div>
+                              )}
+                            </ListItemPrefix>
+                            False Information
+                          </ListItem>
+                        </button>
+                      </List>
+                      <List className="p-0">
+                        <button onClick={() => handleReport("Fraud")}>
+                          <ListItem>
+                            <ListItemPrefix>
+                              {!isReporting && (
+                                <ExclamationTriangleIcon className="h-4 w-4" />
+                              )}
+                              {isReporting && (
+                                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                                  <Spinner className="h-12 w-12" color="blue" />
+                                </div>
+                              )}
+                            </ListItemPrefix>
+                            Scam/Fraud
+                          </ListItem>
+                        </button>
+                      </List>
+                      <List className="p-0">
+                        <button onClick={() => handleReport("ViolateTerms")}>
+                          <ListItem>
+                            <ListItemPrefix>
+                              {!isReporting && (
+                                <ExclamationTriangleIcon className="h-4 w-4" />
+                              )}
+                              {isReporting && (
+                                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                                  <Spinner className="h-12 w-12" color="blue" />
+                                </div>
+                              )}
+                            </ListItemPrefix>
+                            Violates Terms of Service
+                          </ListItem>
+                        </button>
+                      </List>
+                    </PopoverContent>
+                  </Popover>
                 )}
               </div>
             </div>
@@ -337,33 +507,46 @@ export function ProductPage() {
                 <Typography variant="h5" color="gray" className="mb-3">
                   Product Description
                 </Typography>
-                <Typography variant="paragraph" color="gray">
-                  {description}
-                </Typography>
+                {isHTML ? (
+                  <div
+                    className="text-gray-600"
+                    dangerouslySetInnerHTML={{ __html: description }}
+                  />
+                ) : (
+                  <Typography variant="paragraph" color="gray">
+                    {description}
+                  </Typography>
+                )}
               </div>
               <div className="mt-3">
-                <Typography variant="h5" color="gray" className="mb-3">
+                <Typography variant="h5" color="gray" className="mb3">
                   Working Hours
                 </Typography>
-                {Object.entries(working_hours).map(([day, hours], index) => (
-                  <div key={index}>
-                    <Typography
-                      variant="paragraph"
-                      color="gray"
-                      className="font-bold inline"
-                    >
-                      {day.charAt(0).toUpperCase() + day.slice(1)}:
-                    </Typography>
-                    <Typography
-                      variant="paragraph"
-                      color="gray"
-                      className="inline"
-                    >
-                      {" "}
-                      {hours}
-                    </Typography>
-                  </div>
-                ))}
+                {working_hours ? (
+                  Object.entries(working_hours).map(([day, hours], index) => (
+                    <div key={index}>
+                      <Typography
+                        variant="paragraph"
+                        color="gray"
+                        className="font-bold inline"
+                      >
+                        {day.charAt(0).toUpperCase() + day.slice(1)}:
+                      </Typography>
+                      <Typography
+                        variant="paragraph"
+                        color="gray"
+                        className="inline"
+                      >
+                        {" "}
+                        {hours}
+                      </Typography>
+                    </div>
+                  ))
+                ) : (
+                  <Typography variant="paragraph" color="gray">
+                    Working hours not available
+                  </Typography>
+                )}
               </div>
             </div>
             <div className="container mx-auto p-4 h-96">
