@@ -171,7 +171,7 @@ export function FishCompatibilityResult() {
               Tank Environment Suggestions
             </Typography>
             <Typography variant="paragraph" className="my-3 text-xl">
-              by OpenAI
+              by AquaPedia
             </Typography>
           </div>
           <div className="lg:px-52">
