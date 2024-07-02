@@ -6,20 +6,29 @@ import {
   Button,
   IconButton,
   Collapse,
+  Spinner,
 } from "@material-tailwind/react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import Logo from "../../images/Logos/logo-blacktext.svg";
 import AddAdvertisementModal from "../../components/AdvertismentModel/AddAdvertismentModal";
+import UserAdditionalDetailsModel from "../AdditionalDetailsModel/UserAdditionalDetailsModel";
 import { useAuth } from "../../context/AuthContext";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+const backEndURL = import.meta.env.VITE_LARAVEL_APP_URL;
 
 const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [openNav, setOpenNav] = useState(false);
   const [openProfileMenu, setOpenProfileMenu] = useState(false);
   const [openAdModal, setOpenAdModal] = useState(false);
+  const [openUADModal, setOpenUADModal] = useState(false);
+  const [loading, setLoading] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const isMobile = useMediaQuery({ maxWidth: 960 });
   const { user, token, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -54,6 +63,75 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
   const handleLogout = async () => {
     await logout();
     navigate("/");
+  };
+
+  const handleAddAdvertisement = async () => {
+    setLoading(true);
+    try {
+      if (user?.role === "user") {
+        const userInfoResponse = await fetch(
+          `${backEndURL}/api/user-info/exists`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const userInfo = await userInfoResponse.json();
+
+        if (!userInfo.has_user_info) {
+          setOpenUADModal(true);
+          return;
+        }
+        try {
+          const adCountResponse = await fetch(
+            `${backEndURL}/api/advertisement/getUsersAdvertisementCount`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          const adCount = await adCountResponse.json();
+          if (adCount.advertisement_count >= 2) {
+            toast.error(
+              "You can only add 2 advertisements. Remove one to add another."
+            );
+            return;
+          }
+        } catch (error) {
+          toast.error("An error occurred. Please try again.");
+          return;
+        }
+        setOpenAdModal(true);
+      } else if (user?.role === "shop") {
+        try {
+          const shopInfoResponse = await fetch(
+            `${backEndURL}/api/shop-info/exists`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          const shopInfo = await shopInfoResponse.json();
+
+          if (!shopInfo.has_shop_info) {
+            navigate("/additionaldetails");
+            return;
+          }
+        } catch (error) {
+          toast.error("An error occurred. Please try again.");
+          return;
+        }
+        setOpenAdModal(true);
+      }
+    } catch (error) {
+      console.error("Failed to handle advertisement logic:", error);
+      toast.error("An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const avatarDropdown = (
@@ -91,9 +169,9 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
           <button
             role="menuitem"
             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-            onClick={() => setOpenAdModal(true)}
+            onClick={handleAddAdvertisement}
           >
-            Add Advertisement
+            {loading ? <Spinner /> : "Add Advertisement"}
           </button>
           <button
             role="menuitem"
@@ -112,6 +190,18 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
     </div>
   );
 
+  const isActive = (path: string) => {
+    if (path === "/advertisements") {
+      return (
+        location.pathname === path || location.pathname.startsWith(`${path}/`)
+      );
+    }
+    if (path === "/compatibility/compatibility-tool") {
+      return location.pathname.startsWith("/compatibility");
+    }
+    return location.pathname === path;
+  };
+
   const navList = (
     <ul className="mt-2 mb-4 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6">
       <Typography
@@ -120,7 +210,12 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
         color="blue-gray"
         className="p-1 font-normal"
       >
-        <NavLink to="/" className="flex items-center">
+        <NavLink
+          to="/"
+          className={`flex items-center ${
+            isActive("/") ? "font-bold text-blue-500" : ""
+          }`}
+        >
           Home
         </NavLink>
       </Typography>
@@ -130,7 +225,12 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
         color="blue-gray"
         className="p-1 font-normal"
       >
-        <NavLink to="/advertisements" className="flex items-center">
+        <NavLink
+          to="/advertisements"
+          className={`flex items-center ${
+            isActive("/advertisements") ? "font-bold text-blue-500" : ""
+          }`}
+        >
           Advertisement Platform
         </NavLink>
       </Typography>
@@ -142,7 +242,11 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
       >
         <NavLink
           to="/compatibility/compatibility-tool"
-          className="flex items-center"
+          className={`flex items-center ${
+            isActive("/compatibility/compatibility-tool")
+              ? "font-bold text-blue-500"
+              : ""
+          }`}
         >
           Compatibility Tool
         </NavLink>
@@ -153,7 +257,12 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
         color="blue-gray"
         className="p-1 font-normal"
       >
-        <NavLink to="/search" className="flex items-center">
+        <NavLink
+          to="/search"
+          className={`flex items-center ${
+            isActive("/search") ? "font-bold text-blue-500" : ""
+          }`}
+        >
           Fish Database
         </NavLink>
       </Typography>
@@ -163,7 +272,12 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
         color="blue-gray"
         className="p-1 font-normal"
       >
-        <NavLink to="/forum/forum-file" className="flex items-center">
+        <NavLink
+          to="/forum/forum-home"
+          className={`flex items-center ${
+            isActive("/forum/forum-home") ? "font-bold text-blue-500" : ""
+          }`}
+        >
           Forum
         </NavLink>
       </Typography>
@@ -263,9 +377,9 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
                   <button
                     role="menuitem"
                     className="block px-4 py-2 text-sm text-gray-800 hover:bg-gray-100 w-full text-left"
-                    onClick={() => setOpenAdModal(true)}
+                    onClick={handleAddAdvertisement}
                   >
-                    Add Advertisement
+                    {loading ? <Spinner /> : "Add Advertisement"}
                   </button>
                   <button
                     role="menuitem"
@@ -298,6 +412,10 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
           )}
         </Collapse>
       </Navbar>
+      <UserAdditionalDetailsModel
+        handleOpen={() => setOpenUADModal(false)}
+        open={openUADModal}
+      />
       <AddAdvertisementModal
         open={openAdModal}
         handleClose={() => setOpenAdModal(false)}

@@ -14,8 +14,9 @@ import Advertisement from "./pages/Advertisement";
 import ProductPage from "./pages/Advertisement/ProductPage";
 import CompatibilityTool from "./pages/compatabilityTool/compatibility-tool";
 import FIshCompatibilityResult from "./pages/compatabilityTool/fish-compatability-result";
-import Forum from "./pages/Forum/forum-file";
+import Forum from "./pages/Forum/forum-home";
 import Products from "./pages/Advertisement/Products";
+import AdditionalDetails from "./pages/AdditionalDetails/AdditionalDeatails";
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -80,6 +81,15 @@ function App() {
           }
         />
         <Route
+          path="/additionaldetails"
+          element={
+            <>
+              <PageTitle title="Additional Details | HappyTank" />
+              <AdditionalDetails />
+            </>
+          }
+        />
+        <Route
           path="/search"
           element={
             <>
@@ -136,7 +146,7 @@ function App() {
         />
 
         <Route
-          path="/forum/forum-file"
+          path="/forum/forum-home"
           element={
             <>
               <PageTitle title="Forum | HappyTank" />

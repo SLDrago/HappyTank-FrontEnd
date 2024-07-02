@@ -7,7 +7,7 @@ import Breadcrumb from "../../components/Advertisement/BreadCrumb";
 import { Button, Typography } from "@material-tailwind/react";
 import AdCard from "../../components/Advertisement/AdCard";
 import SearchBox from "../../components/SearchBox/SearchBox";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { AdCardSkeltons } from "../../components/Advertisement/AdCardSkeltons";
 import NoAdsFound from "../../components/Advertisement/NoAdsFound";
 import axios from "axios";
@@ -26,7 +26,7 @@ const Advertisement = () => {
   const [ads, setAds] = useState<Advertisement[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<boolean>(false);
-
+  const navigate = useNavigate();
   const items = [
     {
       imageSrc:
@@ -97,7 +97,9 @@ const Advertisement = () => {
   }, []);
 
   const handleSearch = (query: string) => {
-    console.log("Search query:", query);
+    if (query.trim()) {
+      navigate(`/advertisements/products?search=${query}`);
+    }
   };
 
   return (
@@ -127,6 +129,7 @@ const Advertisement = () => {
               description={ad.small_description}
               price={ad.price}
               rating={ad.rating}
+              link={`/advertisements/products/${ad.title}?id=${ad.id}`}
             />
           ))}
         </div>

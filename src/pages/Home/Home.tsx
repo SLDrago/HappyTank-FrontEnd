@@ -5,6 +5,7 @@ import {
   Typography,
   Radio,
 } from "@material-tailwind/react";
+import { NavLink } from "react-router-dom";
 import DefaultLayout from "../../layout/default_layout";
 import BackGround from "../../images/Backgrounds/fish-and-divers-on-blue-sea.svg";
 
@@ -23,25 +24,27 @@ export default function Home() {
             If you are not sure what fishes best for you! Use our tool to check
             the fish combinations you imagine..
           </h3>
-          <Button
-            color="gray"
-            size="sm"
-            className="text-white w-fit flex items-center text-base px-6"
-          >
-            <span>Go &nbsp;</span>{" "}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              fill="currentColor"
-              viewBox="0 0 16 16"
+          <NavLink to="/compatibility/compatibility-tool">
+            <Button
+              color="gray"
+              size="sm"
+              className="text-white w-fit flex items-center text-base px-6"
             >
-              <path
-                fill="evenodd"
-                d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"
-              />
-            </svg>
-          </Button>
+              <span>Go &nbsp;</span>{" "}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  fill="evenodd"
+                  d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"
+                />
+              </svg>
+            </Button>
+          </NavLink>
         </main>
         <section className="px-8 py-8 lg:py-16">
           <div className="container mx-auto text-center">

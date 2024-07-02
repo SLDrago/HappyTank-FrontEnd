@@ -12,6 +12,7 @@ interface User {
   id: number;
   name: string;
   email: string;
+  role: string;
   profile_photo_path: string | null;
   profile_photo_url: string;
 }

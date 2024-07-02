@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import DefaultLayout from "../../layout/default_layout";
 import FilterBar from "../../components/Advertisement/FilterBar";
 import { Typography, Button } from "@material-tailwind/react";
@@ -11,6 +12,9 @@ import NoAdsFound from "../../components/Advertisement/NoAdsFound";
 const backEndURL = import.meta.env.VITE_LARAVEL_APP_URL;
 
 const Products: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const initialSearchTerm = searchParams.get("search") || "";
+  const [searchTerm, setSearchTerm] = useState<string>(initialSearchTerm);
   const [advertisements, setAdvertisements] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
@@ -19,9 +23,9 @@ const Products: React.FC = () => {
   const [categoryName, setCategoryName] = useState<string>("All");
 
   useEffect(() => {
-    // Initial fetch when component mounts
-    fetchAdvertisements();
-  }, []);
+    // Initial fetch when component mounts or searchTerm changes
+    fetchAdvertisements({ searchTerm: initialSearchTerm });
+  }, [initialSearchTerm]);
 
   const fetchAdvertisements = (filters?: {
     searchTerm?: string;
@@ -76,7 +80,7 @@ const Products: React.FC = () => {
 
     axios
       .post(`${backEndURL}/api/advertisement/filterAdvertisements`, {
-        search: "",
+        search: searchTerm,
         category: "",
         min_price: null,
         max_price: null,
@@ -98,7 +102,7 @@ const Products: React.FC = () => {
   return (
     <DefaultLayout>
       <Breadcrumb />
-      <FilterBar onFilter={handleFilter} />
+      <FilterBar onFilter={handleFilter} initialSearchTerm={searchTerm} />
       <Typography
         type="h4"
         className="text-blue-gray-900 font-semibold text-2xl mb-6"
@@ -121,6 +125,7 @@ const Products: React.FC = () => {
             description={ad.small_description}
             rating={ad.avg_review}
             price={ad.price}
+            link={`/advertisements/products/${ad.title}?id=${ad.id}`}
           />
         ))}
       </div>

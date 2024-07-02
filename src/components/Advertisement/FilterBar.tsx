@@ -35,9 +35,13 @@ interface FilterBarProps {
     },
     categoryName: string
   ) => void;
+  initialSearchTerm: string;
 }
 
-const FilterBar: React.FC<FilterBarProps> = ({ onFilter }) => {
+const FilterBar: React.FC<FilterBarProps> = ({
+  onFilter,
+  initialSearchTerm,
+}) => {
   // const [categories, setCategories] = useState<{ id: number; name: string }[]>(
   //   []
   // );
@@ -45,9 +49,13 @@ const FilterBar: React.FC<FilterBarProps> = ({ onFilter }) => {
   const [category, setCategory] = useState<string>("");
   const [priceRange, setPriceRange] = useState<string>("");
   const [city, setCity] = useState<string>("");
-  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [searchTerm, setSearchTerm] = useState<string>(initialSearchTerm);
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
   const [width] = useWindowSize();
+
+  useEffect(() => {
+    setSearchTerm(initialSearchTerm);
+  }, [initialSearchTerm]);
 
   const isMobile = width <= 768;
 
