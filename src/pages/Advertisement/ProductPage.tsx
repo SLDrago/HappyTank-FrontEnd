@@ -518,8 +518,8 @@ export function ProductPage() {
                   </Typography>
                 )}
               </div>
-              <div className="mt-3">
-                <Typography variant="h5" color="gray" className="mb3">
+              <div className="mt-8">
+                <Typography variant="h5" color="gray" className="mb-3">
                   Working Hours
                 </Typography>
                 {working_hours ? (
