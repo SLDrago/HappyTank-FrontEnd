@@ -44,7 +44,7 @@ export function FishCompatibilityResult() {
       const response = await axios.post(
         `${backEndURL}/api/advertisement/searchRelatedFishAdvertisements`,
         {
-          fish_names: `${responseData.fish1Name} ${responseData.fish2Name} ${responseData.fish3Name}`,
+          fish_name: `${responseData.fish1Name} ${responseData.fish2Name} ${responseData.fish3Name}`,
           page: currentPage,
           per_page: 6,
         }

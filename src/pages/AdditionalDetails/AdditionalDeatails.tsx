@@ -14,7 +14,7 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
-import { useNavigate } from "react-router-dom"; // Ensure you have react-router-dom installed
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -51,19 +51,54 @@ const AdditionalDetails: React.FC = () => {
   const [facebook, setFacebook] = useState("");
   const [twitter, setTwitter] = useState("");
   const [instagram, setInstagram] = useState("");
-  const [loading, setLoading] = useState(true); // Loading state
+  const [loading, setLoading] = useState(true);
   const { token, user } = useAuth();
   const navigate = useNavigate();
 
   const [workingHours, setWorkingHours] = useState<WorkingHoursState>({
-    Monday: { open: "08:00", close: "18:00", closed: false },
-    Tuesday: { open: "08:00", close: "18:00", closed: false },
-    Wednesday: { open: "08:00", close: "18:00", closed: false },
-    Thursday: { open: "08:00", close: "18:00", closed: false },
-    Friday: { open: "08:00", close: "18:00", closed: false },
-    Saturday: { open: "09:00", close: "17:00", closed: false },
+    Monday: { open: "08:00 AM", close: "06:00 PM", closed: false },
+    Tuesday: { open: "08:00 AM", close: "06:00 PM", closed: false },
+    Wednesday: { open: "08:00 AM", close: "06:00 PM", closed: false },
+    Thursday: { open: "08:00 AM", close: "06:00 PM", closed: false },
+    Friday: { open: "08:00 AM", close: "06:00 PM", closed: false },
+    Saturday: { open: "09:00 AM", close: "05:00 PM", closed: false },
     Sunday: { open: "", close: "", closed: true },
   });
+
+  const convertTo12Hour = (time24: string): string => {
+    if (!time24) return "";
+    const [hours, minutes] = time24.split(":");
+    let period = "AM";
+    let hours12 = parseInt(hours, 10);
+
+    if (hours12 >= 12) {
+      period = "PM";
+      if (hours12 > 12) {
+        hours12 -= 12;
+      }
+    }
+    if (hours12 === 0) {
+      hours12 = 12;
+    }
+
+    return `${hours12.toString().padStart(2, "0")}:${minutes} ${period}`;
+  };
+
+  const convertTo24Hour = (time12: string): string => {
+    if (!time12) return "";
+    const [time, period] = time12.split(" ");
+    if (!time || !period) return "";
+    let [hours, minutes] = time.split(":");
+    let hours24 = parseInt(hours, 10);
+
+    if (period.toLowerCase() === "pm" && hours24 !== 12) {
+      hours24 += 12;
+    } else if (period.toLowerCase() === "am" && hours24 === 12) {
+      hours24 = 0;
+    }
+
+    return `${hours24.toString().padStart(2, "0")}:${minutes}`;
+  };
 
   if (user?.role == "user") {
     navigate("/");
@@ -117,11 +152,12 @@ const AdditionalDetails: React.FC = () => {
     field: keyof WorkingHours,
     value: string
   ) => {
+    const time12 = convertTo12Hour(value);
     setWorkingHours((prevHours) => ({
       ...prevHours,
       [day]: {
         ...prevHours[day],
-        [field]: value,
+        [field]: time12,
       },
     }));
   };
@@ -343,18 +379,26 @@ const AdditionalDetails: React.FC = () => {
                     <div className="flex space-x-2">
                       <Input
                         type="time"
-                        value={hours.open}
+                        value={convertTo24Hour(hours.open)}
                         onChange={(e) =>
-                          handleWorkingHoursChange(day, "open", e.target.value)
+                          handleWorkingHoursChange(
+                            day,
+                            "open",
+                            convertTo12Hour(e.target.value)
+                          )
                         }
                         className="w-full"
                         containerProps={{ className: "min-w-0" }}
                       />
                       <Input
                         type="time"
-                        value={hours.close}
+                        value={convertTo24Hour(hours.close)}
                         onChange={(e) =>
-                          handleWorkingHoursChange(day, "close", e.target.value)
+                          handleWorkingHoursChange(
+                            day,
+                            "close",
+                            convertTo12Hour(e.target.value)
+                          )
                         }
                         className="w-full"
                         containerProps={{ className: "min-w-0" }}

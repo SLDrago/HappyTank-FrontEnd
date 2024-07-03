@@ -14,18 +14,22 @@ const backEndURL = import.meta.env.VITE_LARAVEL_APP_URL;
 const Products: React.FC = () => {
   const [searchParams] = useSearchParams();
   const initialSearchTerm = searchParams.get("search") || "";
+  const initialCategory = searchParams.get("category") || "";
   const [searchTerm, setSearchTerm] = useState<string>(initialSearchTerm);
   const [advertisements, setAdvertisements] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [initialLoad, setInitialLoad] = useState<boolean>(true);
-  const [categoryName, setCategoryName] = useState<string>("All");
+  const [categoryName, setCategoryName] = useState<string>("");
 
   useEffect(() => {
-    // Initial fetch when component mounts or searchTerm changes
-    fetchAdvertisements({ searchTerm: initialSearchTerm });
-  }, [initialSearchTerm]);
+    // Initial fetch when component mounts or searchTerm or category changes
+    fetchAdvertisements({
+      searchTerm: initialSearchTerm,
+      category: initialCategory,
+    });
+  }, [initialSearchTerm, initialCategory]);
 
   const fetchAdvertisements = (filters?: {
     searchTerm?: string;
@@ -81,7 +85,7 @@ const Products: React.FC = () => {
     axios
       .post(`${backEndURL}/api/advertisement/filterAdvertisements`, {
         search: searchTerm,
-        category: "",
+        category: initialCategory,
         min_price: null,
         max_price: null,
         city: "",
@@ -102,13 +106,17 @@ const Products: React.FC = () => {
   return (
     <DefaultLayout>
       <Breadcrumb />
-      <FilterBar onFilter={handleFilter} initialSearchTerm={searchTerm} />
-      <Typography
+      <FilterBar
+        onFilter={handleFilter}
+        initialSearchTerm={searchTerm}
+        initialCategory={initialCategory}
+      />
+      {/* <Typography
         type="h4"
         className="text-blue-gray-900 font-semibold text-2xl mb-6"
       >
         Category: {categoryName}
-      </Typography>
+      </Typography> */}
       {isLoading && <AdCardSkeltons />}
       {!isLoading && advertisements.length === 0 && (
         <div className="mt-32">
