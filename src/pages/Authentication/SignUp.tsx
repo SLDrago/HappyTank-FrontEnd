@@ -95,7 +95,7 @@ export function SignUp() {
                 variant="small"
                 className="mb-2 block font-medium text-gray-900"
               >
-                Your Name
+                Your Name / Shop Name
               </Typography>
             </label>
             <Input
