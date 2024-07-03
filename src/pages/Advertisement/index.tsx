@@ -32,7 +32,7 @@ const Advertisement = () => {
       imageSrc:
         "https://images.unsplash.com/photo-1586947726958-3d329e3a5d7a?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8Z29sZGZpc2h8ZW58MHx8MHx8fDA%3D",
       imageAlt: "Fish",
-      link: "",
+      link: "/advertisements/products?category=1",
       title: "Ornamental Fish",
       category: "Fish",
     },
@@ -40,40 +40,40 @@ const Advertisement = () => {
       imageSrc:
         "https://sa1s3optim.patientpop.com/assets/images/provider/photos/2494334.png",
       imageAlt: "Fish Tanks",
-      link: "",
-      title: "Fish Tanks",
+      link: "/advertisements/products?category=2",
+      title: "Aquariums and Tanks",
       category: "Tanks",
     },
     {
       imageSrc:
         "https://i5.walmartimages.com/seo/Mascarry-300-Gallon-Adjustable-Silent-Air-Pump-for-Large-Aquarium-Fish-Tank_010f53c4-fe61-45e3-af24-e7ccfa419e1a.c4749756ee02e4d86a8249919706ed2d.jpeg",
-      imageAlt: "Air pumps",
-      link: "",
-      title: "Air pumps",
-      category: "Equipments",
+      imageAlt: "Maintainance Tools",
+      link: "/advertisements/products?category=8",
+      title: "Maintainance Tools",
+      category: "Maintainance",
     },
     {
       imageSrc:
         "https://cdn.shopify.com/s/files/1/0311/3149/files/small_xtremecommunitycrave_guppycommunitytank.webp?v=1676315792",
       imageAlt: "Fish Foods",
-      link: "",
+      link: "/advertisements/products?category=5",
       title: "Fish Foods",
-      category: "Food",
+      category: "Foods",
     },
     {
       imageSrc:
         "https://rukminim2.flixcart.com/image/850/1000/jwqpocw0/aquarium-plant-anchor/c/m/3/artificial-plants-for-aquarium-fish-tank-decorations-venus-aqua-original-imafhcychguuc9nb.jpeg?q=20&crop=false",
       imageAlt: "Artificial Plants",
-      link: "",
-      title: "Artificial Plants",
+      link: "/advertisements/products?category=7",
+      title: "Decoration and Substrate",
       category: "Decoration",
     },
     {
       imageSrc:
         "https://fishfixsrilanka.lk/wp-content/uploads/2021/09/maxresdefaultfxgcxg.jpg",
       imageAlt: "Fish Treatments",
-      link: "",
-      title: "Fish Treatments",
+      link: "/advertisements/products?category=6",
+      title: "Medicines and Supplements",
       category: "Medicine",
     },
   ];
