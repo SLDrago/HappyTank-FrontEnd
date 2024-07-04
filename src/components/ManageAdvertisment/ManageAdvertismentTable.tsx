@@ -6,6 +6,8 @@ import {
     Typography,
 } from "@material-tailwind/react";
 import { PencilIcon, TrashIcon } from "@heroicons/react/20/solid";
+import EditAdds from '../EditAddVertisment/EditAdds'; // Import  EditAdds component
+import DeleteAdd from '../DeleteAdvertisment/DeleteAdd'; // Import  DeleteModal component
 
 interface Advertisement {
     id: string;
@@ -16,6 +18,10 @@ interface Advertisement {
 
 const ManageAdvertisementTable: React.FC = () => {
     const [ads, setAds] = useState<Advertisement[]>([]);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [currentAd, setCurrentAd] = useState<Advertisement | null>(null);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [currentDeleteAd, setCurrentDeleteAd] = useState<Advertisement | null>(null);
 
     useEffect(() => {
         // Fetch advertisements from API and setAds with the response
@@ -37,14 +43,27 @@ const ManageAdvertisementTable: React.FC = () => {
         ]);
     }, []);
 
-    const handleEdit = (id: string) => {
-        // Implement edit functionality
-        console.log(`Edit ad with id: ${id}`);
+    const handleEdit = (ad: Advertisement) => {
+        setCurrentAd(ad);
+        setIsEditModalOpen(true);
     };
 
-    const handleDelete = (id: string) => {
-        // Implement delete functionality
-        console.log(`Delete ad with id: ${id}`);
+    const handleSave = (updatedAd: Advertisement) => {
+        setAds(prevAds => prevAds.map(ad => ad.id === updatedAd.id ? updatedAd : ad));
+        setIsEditModalOpen(false);
+    };
+
+    const handleDelete = (ad: Advertisement) => {
+        setCurrentDeleteAd(ad);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = () => {
+        if (currentDeleteAd) {
+            setAds(prevAds => prevAds.filter(ad => ad.id !== currentDeleteAd.id));
+            setIsDeleteModalOpen(false);
+            alert('The Item Has Been Deleted');
+        }
     };
 
     return (
@@ -56,7 +75,6 @@ const ManageAdvertisementTable: React.FC = () => {
                 <table className="w-full text-left table-auto min-w-max">
                     <thead>
                         <tr className='border-2'>
-
                             <th className="p-4">Advertisement Image</th>
                             <th className="p-4">Title / Small Description</th>
                             <th className="p-4">Action</th>
@@ -69,7 +87,6 @@ const ManageAdvertisementTable: React.FC = () => {
 
                             return (
                                 <tr key={ad.id}>
-
                                     <td className={classes}>
                                         <Card className='rounded-md w-fit'>
                                             <img
@@ -94,7 +111,7 @@ const ManageAdvertisementTable: React.FC = () => {
                                             color="blue"
                                             variant="text"
                                             size="sm"
-                                            onClick={() => handleEdit(ad.id)}
+                                            onClick={() => handleEdit(ad)}
                                         >
                                             <PencilIcon className="w-5 h-5" />
                                         </IconButton>
@@ -102,7 +119,7 @@ const ManageAdvertisementTable: React.FC = () => {
                                             color="red"
                                             variant="text"
                                             size="sm"
-                                            onClick={() => handleDelete(ad.id)}
+                                            onClick={() => handleDelete(ad)}
                                         >
                                             <TrashIcon className="w-5 h-5" />
                                         </IconButton>
@@ -113,6 +130,21 @@ const ManageAdvertisementTable: React.FC = () => {
                     </tbody>
                 </table>
             </CardBody>
+            {currentAd && (
+                <EditAdds
+                    isOpen={isEditModalOpen}
+                    onClose={() => setIsEditModalOpen(false)}
+                    ad={currentAd}
+                    onSave={handleSave}
+                />
+            )}
+            {currentDeleteAd && (
+                <DeleteAdd
+                    isOpen={isDeleteModalOpen}
+                    onClose={() => setIsDeleteModalOpen(false)}
+                    onDelete={confirmDelete}
+                />
+            )}
         </Card>
     );
 };
