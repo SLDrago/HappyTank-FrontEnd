@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Typography, Input, Button } from "@material-tailwind/react";
 import { EyeSlashIcon, EyeIcon } from "@heroicons/react/24/solid";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -9,10 +9,16 @@ import { useAuth } from "../../context/AuthContext";
 const backEndURL = import.meta.env.VITE_LARAVEL_APP_URL;
 
 export function SignIn() {
-  const { login } = useAuth(); // Access login function from AuthContext
+  const { login, token } = useAuth();
   const [passwordShown, setPasswordShown] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (token != null) {
+      navigate("/");
+    }
+  }, [token, navigate]);
 
   const togglePasswordVisibility = () =>
     setPasswordShown((current) => !current);
