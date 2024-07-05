@@ -12,9 +12,13 @@ import ResetPW from "./pages/Authentication/ResetPW";
 import FishSearch from "./pages/Search/Search";
 import Advertisement from "./pages/Advertisement";
 import ProductPage from "./pages/Advertisement/ProductPage";
+import CompatibilityTool from "./pages/compatabilityTool/compatibility-tool";
+import FIshCompatibilityResult from "./pages/compatabilityTool/fish-compatability-result";
+import Forum from "./pages/Forum/forum-home";
 import Products from "./pages/Advertisement/Products";
 import ProfilePage from "./pages/Settings/ProfilePage";
 import ManageAdvertisementPage from "./pages/Settings/ManageAdvertisment";
+import AdditionalDetails from "./pages/AdditionalDetails/AdditionalDeatails";
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -79,6 +83,15 @@ function App() {
           }
         />
         <Route
+          path="/additionaldetails"
+          element={
+            <>
+              <PageTitle title="Additional Details | HappyTank" />
+              <AdditionalDetails />
+            </>
+          }
+        />
+        <Route
           path="/search"
           element={
             <>
@@ -88,29 +101,29 @@ function App() {
           }
         />
         <Route
-          path="/adverticements"
+          path="/advertisements"
           element={
             <>
-              <PageTitle title="Adverticement Platform | HappyTank" />
+              <PageTitle title="Advertisement Platform | HappyTank" />
               <Advertisement />
             </>
           }
         />
         <Route
-          path="/adverticements/products"
+          path="/advertisements/products"
           element={
             <>
-              <PageTitle title="Adverticement Platform | HappyTank" />
+              <PageTitle title="Advertisement Platform | HappyTank" />
               <Products />
             </>
           }
         />
 
         <Route
-          path="/adverticements/product-page"
+          path="/advertisements/products/*"
           element={
             <>
-              <PageTitle title="Adverticement Platform | HappyTank" />
+              <PageTitle title="Advertisement Platform | HappyTank" />
               <ProductPage />
             </>
           }
@@ -133,6 +146,36 @@ function App() {
             </>
           }
         />
+        <Route
+          path="/compatibility/compatibility-tool"
+          element={
+            <>
+              <PageTitle title="Compatibility Tool | HappyTank" />
+              <CompatibilityTool />
+            </>
+          }
+        />
+
+        <Route
+          path="/compatibility/compatibility-result"
+          element={
+            <>
+              <PageTitle title="Compatibility Result | HappyTank" />
+              <FIshCompatibilityResult />
+            </>
+          }
+        />
+
+        <Route
+          path="/forum/forum-home"
+          element={
+            <>
+              <PageTitle title="Forum | HappyTank" />
+              <Forum />
+            </>
+          }
+        />
+        
         <Route
           path="*"
           element={

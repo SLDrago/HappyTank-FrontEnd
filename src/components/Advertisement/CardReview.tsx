@@ -5,6 +5,7 @@ interface ReviewCardPropsType {
   name: string;
   feedback: string;
   date: string;
+  rating: number;
 }
 
 export function CardReview({
@@ -12,11 +13,12 @@ export function CardReview({
   feedback,
   date,
   title,
+  rating,
 }: ReviewCardPropsType) {
   return (
     <Card shadow={false}>
       <CardBody className="pt-0">
-        <Rating value={4} className="text-amber-500" />
+        <Rating value={rating} className="text-amber-500" readonly />
         <Typography
           variant="h6"
           color="blue-gray"

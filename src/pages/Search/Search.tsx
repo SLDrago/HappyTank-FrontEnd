@@ -1,97 +1,94 @@
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { Typography, Input, Button, Card } from "@material-tailwind/react";
 import DefaultLayout from "../../layout/default_layout";
 import FileUpload from "../../components/FileUpload/FileUpload";
 import AdCard from "../../components/Advertisement/AdCard";
-import { useState, useEffect } from "react";
-import axios from "axios";
 
-interface GoldfishData {
-  label: string;
-  value: string;
+const backEndURL = import.meta.env.VITE_LARAVEL_APP_URL;
+
+interface FishName {
+  id: number;
+  common_name: string;
+  scientific_name: string;
+  formatted_name: string;
+}
+
+interface FishData {
+  id: number;
+  common_name: string;
+  scientific_name: string;
+  aquarium_size: string;
+  habitat: string;
+  max_standard_length: string;
+  temperature: string;
+  ph: string;
+  diet: string;
+  behavior: string;
+  sexual_dimorphisms: string;
+  reproduction: string;
+  notes: string;
+  image: string;
+}
+
+interface Advertisement {
+  id: number;
+  title: string;
+  small_description: string;
+  price: number;
+  image_url: string;
+  avg_review: number;
+  review_count: number;
+}
+
+interface AdvertisementResponse {
+  advertisements: Advertisement[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+  };
 }
 
 export default function Search() {
-  const searched = 0; //1 for searched, 0 for not searched
-  const fishName = "Gold Fish";
-
-  const goldfishData: GoldfishData[] = [
-    { label: "Common Name", value: "Goldfish" },
-    { label: "Scientific Name", value: "Carassius Auratus" },
-    { label: "Aquarium Size", value: "15 - 30 litres" },
-    {
-      label: "Habitat",
-      value:
-        "Goldfish often dig the gravel so choose strong plants, moreover they use to eat plants too and only the anubias seem to be not tasty for them.",
-    },
-    { label: "Max Standard Length", value: "220mm" },
-    { label: "Temperature", value: "18°C – 24°C" },
-    { label: "PH", value: "6 - 7" },
-    { label: "Diet", value: "Omnivorous" },
-    { label: "Behavior/Compatibility", value: "Peaceful" },
-    {
-      label: "Sexual Dimorphisms",
-      value:
-        "Males tend to have longer, thinner, more streamlined body shapes than females of the same age and species. Look for a concave vent. A male goldfish’s vent is usually narrow and elongated, making it somewhat ovular in shape.",
-    },
-    {
-      label: "Reproduction",
-      value:
-        "A young and healthy adult female can spawn from 500 to 1000 eggs. In case you are breeding them inside the aquarium it is better to remove the eggs, otherwise adults would eat them; while if you are breeding them in the pond you can also leave there the eggs, the most would be eaten, anyway fry have a lot of hiding places, and small food already present in the pond water. If you have to feed fry in the aquarium use liquid foods, infusoria and brine shrimps. From the age of three weeks they can eat adult food.",
-    },
-    {
-      label: "Notes",
-      value:
-        "Goldfish are strong fish anyway they suffer specially of swimming bladder problems and water pollution. As mentioned above, the swimming bladder of goldfish is really delicate and can get damaged by fermented food, infections and hits. If the fish swims slower than usual or in a strange position (a bit turned on a side) leave it without food for a day, because overfeeding is the first cause; if things do not go better maybe the problem is permanent, but is not a serious trouble if the fish can still eat and move. Goldfish suffer water pollution because they need really oxygenated water, when oxygen level is low fish usually breath faster and look stressed; do some water changes, add an oxygenator for some days and solve the cause of water pollution (overfeeding, not working filter, overpopulation, poor oxygenation).",
-    },
-  ];
-
   const [query, setQuery] = useState<string>("");
-  const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [words, setWords] = useState<string[]>([]);
-
-  // const fetchFishNames = async () => {
-  //   try {
-  //     const response = await axios.get("/api/fishNames");
-  //     setWords(response.data);
-  //   } catch (error) {
-  //     console.error("Error fetching fish names:", error);
-  //   }
-  // };
-
-  const fishNames = [
-    "Salmon",
-    "Trout",
-    "Bass",
-    "Tuna",
-    "Carp",
-    "Catfish",
-    "Herring",
-    "Mackerel",
-    "Pike",
-    "Snapper",
-    "Sardine",
-    "Perch",
-    "Grouper",
-    "Flounder",
-    "Haddock",
-    "Anchovy",
-    "Swordfish",
-    "Marlin",
-    "Barracuda",
-    "Tilapia",
-  ];
+  const [suggestions, setSuggestions] = useState<FishName[]>([]);
+  const [fishList, setFishList] = useState<FishName[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [searchedFish, setSearchedFish] = useState<FishData | null>(null);
+  const [isSearchView, setIsSearchView] = useState<boolean>(true);
+  const [advertisements, setAdvertisements] = useState<Advertisement[]>([]);
+  const [adPage, setAdPage] = useState<number>(1);
+  const [adMeta, setAdMeta] = useState<AdvertisementResponse["meta"] | null>(
+    null
+  );
+  const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
 
   useEffect(() => {
-    setWords(fishNames);
+    fetchFishNames();
   }, []);
 
-  const handleInputChange = (e) => {
+  const fetchFishNames = async () => {
+    try {
+      const response = await axios.get(`${backEndURL}/api/getFishNames`);
+      setFishList(response.data);
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error fetching fish names:", error);
+      setIsLoading(false);
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setQuery(value);
 
     if (value) {
-      const filteredSuggestions = words
-        .filter((word) => word.toLowerCase().includes(value.toLowerCase()))
+      const filteredSuggestions = fishList
+        .filter((fish) =>
+          fish.formatted_name.toLowerCase().includes(value.toLowerCase())
+        )
         .slice(0, 6);
       setSuggestions(filteredSuggestions);
     } else {
@@ -99,89 +96,93 @@ export default function Search() {
     }
   };
 
-  const handleSuggestionClick = (suggestion: string): void => {
-    setQuery(suggestion);
+  const handleSuggestionClick = (suggestion: FishName) => {
+    setQuery(suggestion.formatted_name);
     setSuggestions([]);
   };
 
-  const handleSearch = (e: MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    console.log("Search initiated for:", query);
+  const handleSearch = async () => {
+    const selectedFish = fishList.find(
+      (fish) => fish.formatted_name.toLowerCase() === query.toLowerCase()
+    );
+
+    if (selectedFish) {
+      try {
+        const fishResponse = await axios.post(
+          `${backEndURL}/api/fish/getFishByIdWithImages`,
+          { id: selectedFish.id }
+        );
+        setSearchedFish(fishResponse.data);
+        setIsSearchView(false);
+
+        // Fetch related advertisements
+        fetchAdvertisements(selectedFish.common_name, 1);
+      } catch (error) {
+        console.error("Error fetching fish data:", error);
+      }
+    } else {
+      alert("Please select a valid fish from the suggestions.");
+    }
   };
+
+  const fetchAdvertisements = async (fishName: string, page: number) => {
+    try {
+      setIsLoadingMore(true);
+      const adResponse = await axios.post(
+        `${backEndURL}/api/advertisement/searchRelatedFishAdvertisements`,
+        {
+          fish_name: fishName,
+          page: page,
+          per_page: 6,
+        }
+      );
+      setAdvertisements((prevAds) => [
+        ...prevAds,
+        ...adResponse.data.advertisements,
+      ]);
+      setAdMeta(adResponse.data.meta);
+      setAdPage(page);
+      setIsLoadingMore(false);
+    } catch (error) {
+      console.error("Error fetching advertisements:", error);
+      setIsLoadingMore(false);
+    }
+  };
+
+  const handleBackToSearch = () => {
+    setIsSearchView(true);
+    setSearchedFish(null);
+    setQuery("");
+    setAdvertisements([]);
+    setAdMeta(null);
+  };
+
+  const handleSeeMore = () => {
+    if (searchedFish && adPage < (adMeta?.last_page || 1)) {
+      fetchAdvertisements(searchedFish.common_name, adPage + 1);
+    }
+  };
+
+  const formatValue = (key: string, value: string) => {
+    if (key === "temperature") {
+      return `${value} °C`;
+    } else if (key === "max_standard_length") {
+      return `${value} mm`;
+    }
+    return value;
+  };
+
+  if (isLoading) {
+    return (
+      <DefaultLayout>
+        <div></div>
+      </DefaultLayout>
+    );
+  }
 
   return (
     <DefaultLayout>
-      {searched === 1 ? (
-        <>
-          <Typography
-            variant="h1"
-            color="blue-gray"
-            className="mt-4 mb-10 !text-base lg:!text-5xl"
-          >
-            Search Results for:{" "}
-            <span className="text-green-500">{fishName}</span>
-          </Typography>
-          <div className="flex flex-col md:flex-row items-start justify-center gap-16">
-            <div className="w-full md:w-5/12">
-              <Card>
-                <img
-                  src="https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Z29sZGZpc2h8ZW58MHx8MHx8fDA%3D"
-                  alt="Fish"
-                  className="w-full h-full object-cover rounded-lg"
-                />
-              </Card>
-            </div>
-            <div className="w-full md:w-7/12">
-              <div className="container mx-auto p-4">
-                {goldfishData.map((item, index) => (
-                  <div className="mb-6" key={index}>
-                    <Typography variant="h5" color="gray" className="mb-3">
-                      {item.label}
-                    </Typography>
-                    <Typography variant="paragraph" color="gray">
-                      {item.value}
-                    </Typography>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-          <div className="mx-auto text-center mb-16 mt-10">
-            <Typography variant="h1" className="my-4 text-5xl">
-              Want to take this fish Home?
-            </Typography>
-            <Typography className="!font-normal text-gray-500 mx-auto max-w-2xl">
-              Here are few suggested places that you can purchase this fish
-            </Typography>
-          </div>
-          <div className="mx-auto container">
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-3 md:grid-cols-2">
-              <AdCard
-                imageSrc="https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Z29sZGZpc2h8ZW58MHx8MHx8fDA%3D"
-                title="Gold Fish"
-                description="Little Goldfish for Your Home - This small goldfish is the perfect pet! It’s easy to take care of and loves to swim around. With its bright color, it’s fun to watch and makes a great friend. It’s happy in a small bowl or tank and doesn’t need much space. Bring this little fish home and enjoy watching it every day!"
-                rating={4.5}
-                price="20.00"
-              />
-              <AdCard
-                imageSrc="https://images.unsplash.com/photo-1578507065211-1c4e99a5fd24?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Z29sZGZpc2h8ZW58MHx8MHx8fDA%3D"
-                title="Fighters"
-                description="Bold Fighter Fish: A Tiny Warrior for Your Tank - Meet our fighter fish, a small but mighty pet that’s full of life. With its bright colors and flowing fins, it’s a real eye-catcher. This little warrior is easy to care for and doesn’t need much room. It’s perfect for fish lovers who want a pet with spirit. Bring this fighter fish home and watch it bravely explore its new world!"
-                rating={4.6}
-              />
-              <AdCard
-                imageSrc="https://images.unsplash.com/photo-1628006020983-5f032bedb369?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fGdvbGRmaXNofGVufDB8fDB8fHww"
-                title="Black Goldfish"
-                description="Black Goldfish: A Rare Beauty for Your Tank - This black goldfish is a rare beauty that will add a touch of elegance to your tank. With its sleek black scales and bright eyes, it’s a stunning fish that’s sure to impress. It’s easy to care for and loves to swim around, making it a joy to watch. Bring this black goldfish home and enjoy its beauty every day!"
-                rating={5.0}
-              />
-            </div>
-          </div>
-          <Button className="mx-auto mt-10 flex ontent-center" size="lg">
-            See More
-          </Button>
-        </>
-      ) : (
+      {isSearchView ? (
         <>
           <Typography
             variant="h1"
@@ -214,13 +215,13 @@ export default function Search() {
                 />
                 {suggestions.length > 0 && (
                   <ul className="absolute z-10 w-full bg-white border border-gray-300 mt-1 rounded-lg">
-                    {suggestions.map((suggestion, index) => (
+                    {suggestions.map((suggestion) => (
                       <li
-                        key={index}
+                        key={suggestion.id}
                         className="p-2 cursor-pointer hover:bg-gray-200"
                         onClick={() => handleSuggestionClick(suggestion)}
                       >
-                        {suggestion}
+                        {suggestion.formatted_name}
                       </li>
                     ))}
                   </ul>
@@ -240,6 +241,109 @@ export default function Search() {
               <FileUpload />
             </div>
           </div>
+        </>
+      ) : (
+        <>
+          {searchedFish && (
+            <>
+              <Button
+                className="flex items-center gap-3 mb-4"
+                onClick={handleBackToSearch}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  fill="currentColor"
+                  className="bi bi-caret-left-fill"
+                  viewBox="0 0 16 16"
+                >
+                  <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z" />
+                </svg>
+                Back to Search
+              </Button>
+              <Typography
+                variant="h1"
+                color="blue-gray"
+                className="mt-4 mb-10 !text-base lg:!text-5xl"
+              >
+                Search Results for:{" "}
+                <span className="text-green-500">
+                  {searchedFish.common_name}
+                </span>
+              </Typography>
+              <div className="flex flex-col md:flex-row items-start justify-center gap-16">
+                <div className="w-full md:w-5/12">
+                  <Card>
+                    <img
+                      src={`${backEndURL}${searchedFish.image}`}
+                      alt={searchedFish.common_name}
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                  </Card>
+                </div>
+                <div className="w-full md:w-7/12">
+                  <div className="container mx-auto p-4">
+                    {Object.entries(searchedFish).map(([key, value]) => {
+                      if (key !== "id" && key !== "image") {
+                        return (
+                          <div className="mb-6" key={key}>
+                            <Typography
+                              variant="h5"
+                              color="gray"
+                              className="mb-3"
+                            >
+                              {key
+                                .replace(/_/g, " ")
+                                .replace(/\b\w/g, (l) => l.toUpperCase())}
+                            </Typography>
+                            <Typography variant="paragraph" color="gray">
+                              {formatValue(key, value as string)}
+                            </Typography>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* Advertisements Section */}
+              {advertisements.length > 0 && (
+                <div className="mt-4 mb-16">
+                  {" "}
+                  {/* Add margin to bottom here */}
+                  <Typography variant="h2" className="mb-2 text-center">
+                    Related Advertisements
+                  </Typography>
+                  <Typography variant="lead" className="mb-14 text-center">
+                    These are the advertisements related to the fish you
+                    searched.
+                  </Typography>
+                  <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+                    {advertisements.map((ad) => (
+                      <AdCard
+                        key={ad.id}
+                        imageSrc={`${backEndURL}${ad.image_url}`}
+                        title={ad.title}
+                        description={ad.small_description}
+                        rating={ad.avg_review}
+                        price={ad.price.toString()}
+                      />
+                    ))}
+                  </div>
+                  {adMeta && adPage < adMeta.last_page && (
+                    <div className="flex justify-center mt-8">
+                      <Button onClick={handleSeeMore} disabled={isLoadingMore}>
+                        {isLoadingMore ? "Loading..." : "See More"}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
+          )}
         </>
       )}
     </DefaultLayout>

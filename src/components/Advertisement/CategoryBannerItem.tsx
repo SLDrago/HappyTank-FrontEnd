@@ -1,4 +1,5 @@
 import React from "react";
+import { NavLink } from "react-router-dom";
 
 interface CategoryBannerItemProps {
   imageSrc: string;
@@ -29,12 +30,12 @@ const CategoryBannerItem: React.FC<CategoryBannerItemProps> = ({
       <div className="product-content absolute inset-0 flex justify-center items-center text-center">
         <div className="bg-black bg-opacity-50 w-full h-full p-4 rounded-md lg:pt-6">
           <h3 className="group-hover:text-[#999999] text-white text-lg lg:text-[22px] mb-2 font-bold">
-            <a
+            <NavLink
               className="transition-all hover:text-yellow-700 text-base lg:text-[18px]"
-              href={link}
+              to={link}
             >
               {title}
-            </a>
+            </NavLink>
           </h3>
           <span className="capitalize font-medium leading-[23px] group-hover:text-yellow-700 text-base lg:text-[15px] text-white">
             {category}
