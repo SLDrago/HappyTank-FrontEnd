@@ -16,6 +16,8 @@ import CompatibilityTool from "./pages/compatabilityTool/compatibility-tool";
 import FIshCompatibilityResult from "./pages/compatabilityTool/fish-compatability-result";
 import Forum from "./pages/Forum/forum-home";
 import Products from "./pages/Advertisement/Products";
+import ProfilePage from "./pages/Settings/ProfilePage";
+import ManageAdvertisementPage from "./pages/Settings/ManageAdvertisment";
 import AdditionalDetails from "./pages/AdditionalDetails/AdditionalDeatails";
 
 function App() {
@@ -116,12 +118,31 @@ function App() {
             </>
           }
         />
+
         <Route
           path="/advertisements/products/*"
           element={
             <>
               <PageTitle title="Advertisement Platform | HappyTank" />
               <ProductPage />
+            </>
+          }
+        />
+        <Route
+          path="/settings/profile"
+          element={
+            <>
+              <PageTitle title="Settings | HappyTank" />
+              <ProfilePage />
+            </>
+          }
+        />
+        <Route
+          path="/settings/advertisements"
+          element={
+            <>
+              <PageTitle title="Settings | HappyTank" />
+              <ManageAdvertisementPage />
             </>
           }
         />
@@ -154,7 +175,7 @@ function App() {
             </>
           }
         />
-
+        
         <Route
           path="*"
           element={
