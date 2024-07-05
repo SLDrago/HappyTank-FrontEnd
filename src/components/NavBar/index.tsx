@@ -173,12 +173,14 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
           >
             {loading ? <Spinner /> : "Add Advertisement"}
           </button>
-          <button
-            role="menuitem"
-            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-          >
-            Settings
-          </button>
+          <NavLink to="/settings/profile">
+            <button
+              role="menuitem"
+              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+            >
+              Settings
+            </button>
+          </NavLink>
           <button
             onClick={handleLogout}
             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
@@ -381,12 +383,14 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
                   >
                     {loading ? <Spinner /> : "Add Advertisement"}
                   </button>
-                  <button
-                    role="menuitem"
-                    className="block px-4 py-2 text-sm text-gray-800 hover:bg-gray-100 w-full text-left"
-                  >
-                    Settings
-                  </button>
+                  <NavLink to="/settings/profile">
+                    <button
+                      role="menuitem"
+                      className="block px-4 py-2 text-sm text-gray-800 hover:bg-gray-100 w-full text-left"
+                    >
+                      Settings
+                    </button>
+                  </NavLink>
                   <button
                     onClick={handleLogout}
                     className="block px-4 py-2 text-sm text-gray-800 hover:bg-gray-100 w-full text-left"
