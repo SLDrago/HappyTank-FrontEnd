@@ -5,11 +5,65 @@ import {
   Typography,
   Radio,
 } from "@material-tailwind/react";
+import { useState } from "react";
+import axios from "axios";
 import { NavLink } from "react-router-dom";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import DefaultLayout from "../../layout/default_layout";
 import BackGround from "../../images/Backgrounds/fish-and-divers-on-blue-sea.svg";
 
+const backEndURL = import.meta.env.VITE_LARAVEL_APP_URL;
+
 export default function Home() {
+  const [formData, setFormData] = useState({
+    type: "General inquiry",
+    first_name: "",
+    last_name: "",
+    email: "",
+    message: "",
+  });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState("");
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  const handleRadioChange = (value) => {
+    setFormData((prevState) => ({
+      ...prevState,
+      type: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitMessage("");
+
+    try {
+      const response = await axios.post(`${backEndURL}/api/contact`, formData);
+      toast.success(response.data.message);
+      setFormData({
+        type: "General inquiry",
+        first_name: "",
+        last_name: "",
+        email: "",
+        message: "",
+      });
+    } catch (error) {
+      toast.error("An error occurred. Please try again later.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div
       className="relative min-h-screen bg-cover bg-center"
@@ -76,7 +130,7 @@ export default function Home() {
                   loading="lazy"
                   className="w-full h-full lg:max-h-[510px] border-x-blue-gray-900 border-y-blue-gray-900 rounded-lg border-solid border-2"
                 ></iframe>
-                <form action="#" className="flex flex-col gap-4">
+                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                   <Typography
                     variant="small"
                     className="text-left !font-semibold !text-gray-600"
@@ -84,8 +138,18 @@ export default function Home() {
                     Select Options for Engagement
                   </Typography>
                   <div className="flex gap-4">
-                    <Radio name="type" label="General inquiry" defaultChecked />
-                    <Radio name="type" label="Technical Support" />
+                    <Radio
+                      name="type"
+                      label="General inquiry"
+                      checked={formData.type === "General inquiry"}
+                      onChange={() => handleRadioChange("General inquiry")}
+                    />
+                    <Radio
+                      name="type"
+                      label="Technical Support"
+                      checked={formData.type === "Technical Support"}
+                      onChange={() => handleRadioChange("Technical Support")}
+                    />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -99,7 +163,9 @@ export default function Home() {
                         color="gray"
                         size="lg"
                         placeholder="First Name"
-                        name="first-name"
+                        name="first_name"
+                        value={formData.first_name}
+                        onChange={handleChange}
                         className="focus:border-t-gray-900"
                         containerProps={{
                           className: "min-w-full",
@@ -120,7 +186,9 @@ export default function Home() {
                         color="gray"
                         size="lg"
                         placeholder="Last Name"
-                        name="last-name"
+                        name="last_name"
+                        value={formData.last_name}
+                        onChange={handleChange}
                         className="focus:border-t-gray-900"
                         containerProps={{
                           className: "!min-w-full",
@@ -143,6 +211,8 @@ export default function Home() {
                       size="lg"
                       placeholder="name@email.com"
                       name="email"
+                      value={formData.email}
+                      onChange={handleChange}
                       className="focus:border-t-gray-900"
                       containerProps={{
                         className: "!min-w-full",
@@ -164,6 +234,8 @@ export default function Home() {
                       color="gray"
                       placeholder="Message"
                       name="message"
+                      value={formData.message}
+                      onChange={handleChange}
                       className="focus:border-t-gray-900"
                       containerProps={{
                         className: "!min-w-full",
@@ -173,9 +245,23 @@ export default function Home() {
                       }}
                     />
                   </div>
-                  <Button className="w-full" color="gray">
-                    Send message
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    color="gray"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Sending..." : "Send message"}
                   </Button>
+                  {submitMessage && (
+                    <Typography
+                      variant="small"
+                      className="mt-2 text-center"
+                      color={submitMessage.includes("error") ? "red" : "green"}
+                    >
+                      {submitMessage}
+                    </Typography>
+                  )}
                 </form>
               </div>
             </div>
