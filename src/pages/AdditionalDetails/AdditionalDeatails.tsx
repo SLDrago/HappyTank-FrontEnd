@@ -142,7 +142,7 @@ const AdditionalDetails: React.FC = () => {
   });
 
   const mapRef = useRef<google.maps.Map | null>(null);
-  const center = { lat: 7.8774222, lng: 80.7003428 }; // Centered on Galle, Sri Lanka 7.8774222 80.7003428
+  const center = { lat: 7.8774222, lng: 80.7003428 };
 
   const handleNext = () => !isLastStep && setActiveStep((cur) => cur + 1);
   const handlePrev = () => !isFirstStep && setActiveStep((cur) => cur - 1);

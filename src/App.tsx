@@ -19,6 +19,7 @@ import Products from "./pages/Advertisement/Products";
 import ProfilePage from "./pages/Settings/ProfilePage";
 import ManageAdvertisementPage from "./pages/Settings/ManageAdvertisment";
 import AdditionalDetails from "./pages/AdditionalDetails/AdditionalDeatails";
+import TankDesign from "./pages/TankDesign/TankDesign";
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -175,7 +176,17 @@ function App() {
             </>
           }
         />
-        
+
+        <Route
+          path="/tank-design"
+          element={
+            <>
+              <PageTitle title="Tank Designer | HappyTank" />
+              <TankDesign />
+            </>
+          }
+        />
+
         <Route
           path="*"
           element={

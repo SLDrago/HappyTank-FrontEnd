@@ -151,16 +151,20 @@ export function FishCompatibilityResult() {
                 </div>
               </div>
               <div className="mt-4">
-                <Typography variant="paragraph" className="lg:text-2xl">
-                  Ideal Temperature Range:{" "}
-                  {resultInfo.tempOverlapRange.join("°C - ")}°C
-                </Typography>
+                {resultInfo.tempOverlapRange !== null && (
+                  <Typography variant="paragraph" className="lg:text-2xl">
+                    Ideal Temperature Range:{" "}
+                    {resultInfo.tempOverlapRange.join("°C - ")}°C
+                  </Typography>
+                )}
               </div>
               <div className="mt-4">
-                <Typography variant="paragraph" className="lg:text-2xl">
-                  Ideal pH Range: {resultInfo.phOverlapRange.join(" - ")}
-                  pH
-                </Typography>
+                {resultInfo.phOverlapRange !== null && (
+                  <Typography variant="paragraph" className="lg:text-2xl">
+                    Ideal pH Range: {resultInfo.phOverlapRange.join(" - ")}
+                    pH
+                  </Typography>
+                )}
               </div>
             </div>
           </div>

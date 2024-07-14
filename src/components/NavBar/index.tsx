@@ -24,11 +24,20 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [openAdModal, setOpenAdModal] = useState(false);
   const [openUADModal, setOpenUADModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [profilePicture, setProfilePicture] = useState("");
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const isMobile = useMediaQuery({ maxWidth: 960 });
   const { user, token, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    if (user?.profile_photo_path !== null) {
+      setProfilePicture(backEndURL + user.profile_photo_path);
+    } else {
+      setProfilePicture(user.profile_photo_url);
+    }
+  }, [user?.profile_photo_path, user?.profile_photo_url]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -138,7 +147,7 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
     <div className="relative">
       <img
         alt={user?.name}
-        src={user?.profile_photo_path || user?.profile_photo_url}
+        src={profilePicture}
         className="inline-block object-cover object-center w-12 h-12 rounded-full cursor-pointer hover:shadow-lg"
         data-popover-target="profile-menu"
         onClick={() => setOpenProfileMenu(!openProfileMenu)}
@@ -365,7 +374,7 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
               <div className="flex items-center gap-x-2">
                 <img
                   alt={user.name}
-                  src={user.profile_photo_path || user.profile_photo_url}
+                  src={profilePicture}
                   className="inline-block object-cover object-center w-10 h-10 rounded-full cursor-pointer hover:shadow-lg"
                   data-popover-target="profile-menu"
                   onClick={() => setOpenProfileMenu(!openProfileMenu)}

@@ -8,6 +8,7 @@ import {
   Popover,
   PopoverHandler,
   PopoverContent,
+  Button,
 } from "@material-tailwind/react";
 
 const backEndURL = import.meta.env.VITE_LARAVEL_APP_URL;
@@ -18,8 +19,10 @@ interface SellerCardProps {
 
 interface SellerData {
   id: string;
-  imageUrl: string;
+  profile_photo_path: string;
+  profile_photo_url: string;
   name: string;
+  email: string;
   address: string;
   description: string;
   gps: {
@@ -32,6 +35,9 @@ interface SellerData {
 const SellerCard: React.FC<SellerCardProps> = ({ id }) => {
   const [sellerData, setSellerData] = useState<SellerData | null>(null);
   const [openPopover, setOpenPopover] = useState(false);
+  const [sellerImage, setSellerImage] = useState("");
+  const [sellerDescription, setSellerDescription] = useState("");
+  const [showFullDescription, setShowFullDescription] = useState(false);
 
   const triggers = {
     onMouseEnter: () => setOpenPopover(true),
@@ -47,6 +53,14 @@ const SellerCard: React.FC<SellerCardProps> = ({ id }) => {
         );
         if (response.data && response.data.length > 0) {
           setSellerData(response.data[0]);
+          if (response.data[0]) {
+            if (response.data[0].profile_photo_path !== null) {
+              setSellerImage(backEndURL + response.data[0].profile_photo_path);
+            } else {
+              setSellerImage(response.data[0].profile_photo_url);
+            }
+            setSellerDescription(response.data[0].description);
+          }
         } else {
           console.error("No seller data found");
         }
@@ -57,6 +71,16 @@ const SellerCard: React.FC<SellerCardProps> = ({ id }) => {
 
     fetchSellerData();
   }, [id]);
+
+  const toggleDescription = () => {
+    setShowFullDescription(!showFullDescription);
+  };
+
+  const truncatedDescription =
+    sellerDescription.length > 300
+      ? sellerDescription.substring(0, 300) + "..."
+      : sellerDescription;
+
   if (!sellerData) {
     return (
       <Card
@@ -81,7 +105,9 @@ const SellerCard: React.FC<SellerCardProps> = ({ id }) => {
       </Card>
     );
   }
-  const isHTML = /<\/?[a-z][\s\S]*>/i.test(sellerData.description);
+
+  const isHTML = /<\/?[a-z][\s\S]*>/i.test(sellerDescription);
+
   return (
     <Popover open={openPopover} handler={setOpenPopover}>
       <PopoverHandler {...triggers}>
@@ -97,7 +123,7 @@ const SellerCard: React.FC<SellerCardProps> = ({ id }) => {
             <Avatar
               size="lg"
               variant="circular"
-              src={sellerData.imageUrl}
+              src={sellerImage}
               alt={sellerData.name}
             />
             <div className="flex w-full flex-col gap-0.5">
@@ -118,7 +144,7 @@ const SellerCard: React.FC<SellerCardProps> = ({ id }) => {
           <Avatar
             size="md"
             variant="circular"
-            src={sellerData.imageUrl}
+            src={sellerImage}
             alt={sellerData.name}
           />
         </div>
@@ -127,12 +153,19 @@ const SellerCard: React.FC<SellerCardProps> = ({ id }) => {
           color="blue-gray"
           className="mb-2 flex items-center gap-2 font-medium"
         >
-          <span>{sellerData.name}</span>
+          <span>{sellerData.name}</span> •{" "}
+          <a className="text-sm font-medium text-gray-900">
+            {"(" + sellerData.email + ")"}
+          </a>
         </Typography>
         {isHTML ? (
           <div
             className="text-gray-600"
-            dangerouslySetInnerHTML={{ __html: sellerData.description }}
+            dangerouslySetInnerHTML={{
+              __html: showFullDescription
+                ? sellerDescription
+                : truncatedDescription,
+            }}
           />
         ) : (
           <Typography
@@ -140,9 +173,27 @@ const SellerCard: React.FC<SellerCardProps> = ({ id }) => {
             color="gray"
             className="font-normal text-blue-gray-500"
           >
-            {sellerData.description}
+            {showFullDescription ? sellerDescription : truncatedDescription}
           </Typography>
         )}
+        {sellerDescription.length > 100 && (
+          <Button
+            size="sm"
+            variant="text"
+            color="blue-gray"
+            className="mt-2 border-transparent border-0"
+            onClick={toggleDescription}
+          >
+            {showFullDescription ? "See less" : "See more"}
+          </Button>
+        )}
+        <Typography
+          variant="small"
+          color="gray"
+          className="flex items-center gap-2 text-sm font-normal text-blue-gray-700"
+        >
+          {"Address: " + sellerData.address}
+        </Typography>
         <div className="mt-6 flex items-center gap-8 border-t border-blue-gray-50 pt-4">
           {sellerData.gps && (
             <Typography

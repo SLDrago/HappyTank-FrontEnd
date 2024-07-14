@@ -1,21 +1,19 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useState } from "react";
 import Sidebar from "../components/Sidebar/Sidebar";
 
 const SettingsLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
-    return (
-        <>
-            <div className="flex h-screen overflow-hidden">
-                <Sidebar />
-                <div className="relative flex flex-col flex-1 overflow-x-hidden overflow-y-auto">
-                    <main>
-                        <div className="p-4 mx-auto max-w-screen-4xl md:p-6 2xl:p-10">
-                            {children}
-                        </div>
-                    </main>
-                </div>
-            </div>
-        </>
-    );
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  return (
+    <div className="flex h-screen overflow-hidden">
+      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto">
+          <div className="container mx-auto px-6 py-8">{children}</div>
+        </main>
+      </div>
+    </div>
+  );
 };
 
 export default SettingsLayout;
