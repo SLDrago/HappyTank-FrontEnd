@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Typography, Input, Button } from "@material-tailwind/react";
 import { EyeSlashIcon, EyeIcon } from "@heroicons/react/24/solid";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -17,7 +17,13 @@ export function SignUp() {
   const [confirmPasswordShown, setConfirmPasswordShown] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, token } = useAuth();
+
+  useEffect(() => {
+    if (token != null) {
+      navigate("/");
+    }
+  }, [token, navigate]);
 
   const togglePasswordVisibility = () => {
     setPasswordShown(!passwordShown);
