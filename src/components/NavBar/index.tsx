@@ -32,10 +32,12 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
   const location = useLocation();
 
   useEffect(() => {
-    if (user?.profile_photo_path !== null) {
-      setProfilePicture(backEndURL + user.profile_photo_path);
-    } else {
-      setProfilePicture(user.profile_photo_url);
+    if (user) {
+      if (user?.profile_photo_path !== null) {
+        setProfilePicture(backEndURL + user.profile_photo_path);
+      } else {
+        setProfilePicture(user.profile_photo_url);
+      }
     }
   }, [user?.profile_photo_path, user?.profile_photo_url]);
 
@@ -290,6 +292,21 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
           }`}
         >
           Forum
+        </NavLink>
+      </Typography>
+      <Typography
+        as="li"
+        variant="small"
+        color="blue-gray"
+        className="p-1 font-normal"
+      >
+        <NavLink
+          to="/tank-design"
+          className={`flex items-center ${
+            isActive("/tank-design") ? "font-bold text-blue-500" : ""
+          }`}
+        >
+          Tank Designer
         </NavLink>
       </Typography>
     </ul>
