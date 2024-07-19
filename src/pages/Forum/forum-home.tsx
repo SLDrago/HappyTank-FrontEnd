@@ -1,558 +1,380 @@
-import DefaultLayout from "../../layout/default_layout";
-import { useEffect } from "react";
-import AddComment from "../../components/forum/AddComment";
-import CommentSection from "../../components/forum/CommentSection";
-import UtilsSvc from "../../services/utils-svc";
 import React, { useState } from "react";
-import NewPostModal from "../../components/forum/NewPostModal";
-import PostSection from "../../components/forum/PostSection";
+import {
+  Card,
+  CardHeader,
+  CardBody,
+  CardFooter,
+  Typography,
+  Button,
+  Dialog,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
+  Textarea,
+  Input,
+  Avatar,
+} from "@material-tailwind/react";
+import {
+  CameraIcon,
+  PaperAirplaneIcon,
+  HeartIcon as HeartIconOutline,
+  ChatBubbleLeftEllipsisIcon,
+  EllipsisHorizontalIcon,
+} from "@heroicons/react/24/outline";
+import { HeartIcon as HeartIconSolid } from "@heroicons/react/24/solid";
+import DefaultLayout from "../../layout/default_layout";
 
-const post = [
+// Mock data for initial posts
+const initialPosts = [
   {
-    id: 500,
-    createdBy: "Lakmal Kumara silva",
-    profileImg: "https://docs.material-tailwind.com/img/face-2.jpg",
-    title: "This is the Title",
-    description:
-      "  Get started with this simple avatar example that comes with apre-set image, ensuring that your avatars look great from thestart. You can easily replace the default src with any image URLto display user-specific avatars.",
-    created: "2024-05-03 14:33:45",
-    img: "https://wallpapers.com/images/high/red-discus-4k-ultra-hd-fish-ikfsr1cikojtpa30.webp",
-    like: 3504,
-    dislike: 582,
-    userLike: true,
+    id: 1,
+    author: "John Doe",
+    avatar:
+      "https://ui-avatars.com/api/?name=J+D&color=7F9CF5&background=EBF4FF",
+    content: "What's your favorite programming language and why?",
+    image:
+      "https://images.pexels.com/photos/128756/pexels-photo-128756.jpeg?cs=srgb&dl=pexels-crisdip-35358-128756.jpg&fm=jpg",
+    likes: 15,
     comments: [
       {
         id: 1,
-        name: "Ruwan Kumara silva",
-        created: "2024-05-03 14:33:45",
-        img: "https://docs.material-tailwind.com/img/face-2.jpg",
-        message:
-          "Get started with this simple avatar example that comes with apre-set image, ensuring that your avatars look great from thestart. You can easily replace the default src with any image URLto display user-specific avatars.",
-        like: 3504,
-        dislike: 582,
-        userLike: true,
-        reply: {
-          id: 2,
-          name: "Yasath Pradeep silva",
-          created: "2020-09-03 14:33:45",
-          img: "",
-          message:
-            "sdf Get started with this simple avatar example that comes with apre-set image, ensuring that your avatars look great from thestart. You can easily replace the default src with any image URLto display user-specific avatars.",
-          like: 58504,
-          dislike: 1582,
-          userDislike: true,
-        },
-      },
-      {
-        id: 3,
-        name: "Nuwan Pradeep silva",
-        created: "2023-09-03 14:33:45",
-        img: "",
-        message:
-          "sdf Get started with this simple avatar example that comes with apre-set image, ensuring that your avatars look great from thestart. You can easily replace the default src with any image URLto display user-specific avatars.",
-        like: 58504,
-        dislike: 1582,
-        enableReply: false,
-        reply: {},
-      },
-      {
-        id: 4,
-        name: "Osad Kumara ushan",
-        created: "2024-06-01 10:33:45",
-        img: "",
-        message:
-          "Get started with this simple avatar example that comes with apre-set image, ensuring that your avatars look great from thestart. You can easily replace the default src with any image URLto display user-specific avatars.",
-        like: 35084,
-        dislike: 5482,
-        reply: {
-          id: 5,
-          name: "Yasath Pradeep silva",
-          created: "2020-09-03 14:33:45",
-          img: "",
-          message:
-            "sdf Get started with this simple avatar example that comes with apre-set image, ensuring that your avatars look great from thestart. You can easily replace the default src with any image URLto display user-specific avatars.",
-          like: 58504,
-          dislike: 1582,
-          userLike: true,
-        },
-      },
-      {
-        id: 6,
-        name: "Kusum Kumara silva",
-        created: "2024-02-03 14:33:45",
-        img: "https://docs.material-tailwind.com/img/face-2.jpg",
-        message:
-          "Get started with this simple avatar example that comes with apre-set image, ensuring that your avatars look great from thestart. You can easily replace the default src with any image URLto display user-specific avatars.",
-        like: 3504,
-        dislike: 582,
-        userDislike: true,
-        reply: {
-          id: 7,
-          name: "ruwan Pradeep silva",
-          created: "2020-09-03 14:33:45",
-          img: "https://docs.material-tailwind.com/img/face-2.jpg",
-          message:
-            "sdf Get started with this simple avatar example that comes with apre-set image, ensuring that your avatars look great from thestart. You can easily replace the default src with any image URLto display user-specific avatars.",
-          like: 58504,
-          dislike: 1582,
-        },
+        author: "Jane Smith",
+        avatar:
+          "https://ui-avatars.com/api/?name=J+S&color=7F9CF5&background=EBF4FF",
+        content: "I love Python for its simplicity and versatility!",
+        likes: 5,
+        replies: [
+          {
+            id: 1,
+            author: "Bob Johnson",
+            avatar:
+              "https://ui-avatars.com/api/?name=B+J&color=7F9CF5&background=EBF4FF",
+            content: "Agreed! Python is great for beginners and experts alike.",
+            likes: 2,
+          },
+        ],
       },
     ],
   },
 ];
 
-const userDetails = {
-  name: "Hasitha Pawan Kumara",
-  img: "https://docs.material-tailwind.com/img/face-2.jpg",
-};
+const Comment = ({ comment, level = 0, onReply }) => {
+  const [liked, setLiked] = useState(false);
+  const [showReplyInput, setShowReplyInput] = useState(false);
+  const [replyContent, setReplyContent] = useState("");
 
-function Forum() {
-  const [posts, setPosts] = useState<any>([]);
-  const [userInfo, setUserInfo] = useState(userDetails || {});
-  const [loading, setLoading] = useState(false);
-  const [openPostModal, setOpenPostModal] = useState(false);
-
-  useEffect(() => {
-    try {
-      post.forEach((item: any) => {
-        item.likeV = UtilsSvc?.numberkFormatter(item?.like);
-        item.dislikeV = UtilsSvc?.numberkFormatter(item?.dislike);
-        item?.comments?.forEach((obj: any) => {
-          obj.createdV = UtilsSvc?.getDateDifferent(obj?.created);
-          obj.likeV = UtilsSvc?.numberkFormatter(obj?.like);
-          obj.dislikeV = UtilsSvc?.numberkFormatter(obj?.dislike);
-          if (Object.keys(obj?.reply).length !== 0) {
-            obj.reply.createdV = UtilsSvc?.getDateDifferent(
-              obj?.reply?.created
-            );
-            obj.reply.likeV = UtilsSvc?.numberkFormatter(obj?.reply?.like);
-            obj.reply.dislikeV = UtilsSvc?.numberkFormatter(
-              obj?.reply?.dislike
-            );
-          }
-        });
-      });
-      setPosts(post || []);
-    } catch (e) {
-      console.error("Error - ", e);
-    }
-  }, []);
-
-  const callBackAddComment = (data: any) => {
-    try {
-      const formattedData = {
-        id: posts?.length + 10000,
-        name: userInfo?.name,
-        created: new Date().toString(),
-        createdV: UtilsSvc?.getDateDifferent(new Date().toString()),
-        img: userInfo?.img,
-        message: data?.data,
-        like: 0,
-        likeV: "0",
-        dislike: 0,
-        dislikeV: "0",
-        reply: {},
-      };
-      switch (data?.action) {
-        case "comment":
-          const formattedList = posts.map((item: any) => {
-            if (item?.id === data?.parentPost?.id) {
-              if (item?.comments?.length > 0) {
-                item.comments.unshift(formattedData);
-              } else {
-                item.comments.push(formattedData);
-              }
-              item.enableComment = false;
-            }
-            return item;
-          });
-          setPosts((oldRecord: any) => {
-            oldRecord = formattedList;
-            return [...oldRecord];
-          });
-          setTimeout(() => {
-            setLoading(false);
-          }, 100);
-          break;
-        case "reply":
-          // setLoading(true);
-          const formattedLists = posts.map((item: any) => {
-            if (item?.id === data?.parentPost?.id) {
-              item?.comments?.map((comment: any) => {
-                if (comment?.id === data?.parentComment?.id) {
-                  comment.reply = formattedData;
-                }
-              });
-            }
-            return item;
-          });
-          setPosts((oldRecord: any) => {
-            oldRecord = formattedLists;
-            return [...oldRecord];
-          });
-          setTimeout(() => {
-            setLoading(false);
-          }, 100);
-          break;
-      }
-    } catch (e) {
-      console.error("Error - ", e);
-    }
-  };
-
-  const callBackComment = (data: any) => {
-    try {
-      switch (data?.action) {
-        case "reply":
-          const formattedList = posts.map((item: any) => {
-            if (item?.id === data?.parent?.id) {
-              item?.comments?.map((comment: any) => {
-                if (comment.id === data?.data?.id) {
-                  comment.enableReply = true;
-                }
-              });
-            }
-            return item;
-          });
-          setPosts((oldRecord: any) => {
-            oldRecord = formattedList;
-            return [...oldRecord];
-          });
-          setTimeout(() => {
-            setLoading(false);
-          }, 100);
-          break;
-        case "like":
-        case "dislike":
-          const formatted: any = {};
-          formatted.like = data?.data?.like || 0;
-          formatted.dislike = data?.data?.dislike || 0;
-          if (data?.action === "like") {
-            if (data?.data?.userLike) {
-              formatted.like = data?.data?.like - 1 || 0;
-              formatted.userLike = false;
-            } else {
-              if (data?.data?.userDislike) {
-                formatted.dislike = data?.data?.dislike - 1 || 0;
-              }
-              formatted.userLike = true;
-              formatted.like = data?.data?.like + 1 || 0;
-              formatted.userDislike = false;
-            }
-          } else {
-            if (data?.data?.userDislike) {
-              formatted.dislike = data?.data?.dislike - 1 || 0;
-              formatted.userDislike = false;
-            } else {
-              if (data?.data?.userLike) {
-                formatted.like = data?.data?.like - 1 || 0;
-              }
-              formatted.userDislike = true;
-              formatted.dislike = data?.data?.dislike + 1 || 0;
-              formatted.userLike = false;
-            }
-          }
-          formatted.likeV = UtilsSvc?.numberkFormatter(formatted?.like);
-          formatted.dislikeV = UtilsSvc?.numberkFormatter(formatted?.dislike);
-          const formattedLists = posts.map((item: any) => {
-            if (item?.id === data?.parent?.id) {
-              item?.comments?.map((comment: any) => {
-                if (!data?.parentReply) {
-                  if (comment.id === data?.data?.id) {
-                    comment.like = formatted.like;
-                    comment.dislike = formatted.dislike;
-                    comment.likeV = formatted.likeV;
-                    comment.dislikeV = formatted.dislikeV;
-                    comment.userLike = formatted.userLike || false;
-                    comment.userDislike = formatted.userDislike || false;
-                  }
-                } else {
-                  if (comment?.id === data?.parentReply?.id) {
-                    comment.reply.like = formatted.like;
-                    comment.reply.dislike = formatted.dislike;
-                    comment.reply.likeV = formatted.likeV;
-                    comment.reply.dislikeV = formatted.dislikeV;
-                    comment.reply.userLike = formatted.userLike || false;
-                    comment.reply.userDislike = formatted.userDislike || false;
-                  }
-                }
-                return comment;
-              });
-            }
-            return item;
-          });
-          setPosts((oldRecord: any) => {
-            oldRecord = formattedLists;
-            return [...oldRecord];
-          });
-          setTimeout(() => {
-            setLoading(false);
-          }, 100);
-          break;
-      }
-    } catch (e) {
-      console.error("Error - ", e);
-    }
-  };
-
-  const callBackPostModal = (data: any) => {
-    try {
-      switch (data?.action) {
-        case "submit":
-          const formattedData = {
-            id: posts?.length + 1000,
-            createdBy: userInfo?.name,
-            profileImg: userInfo?.img || "",
-            title: data?.data?.title,
-            description: data?.data?.description,
-            created: new Date().toString(),
-            img: data?.data?.img,
-            like: 0,
-            dislike: 0,
-            comments: [],
-          };
-          if (posts?.length > 0) {
-            posts.unshift(formattedData);
-          } else {
-            posts.push(formattedData);
-          }
-          setPosts((oldRecord: any) => {
-            oldRecord = posts;
-            return [...oldRecord];
-          });
-          setOpenPostModal(false);
-          setTimeout(() => {
-            setLoading(false);
-          }, 100);
-          break;
-        case "close":
-          setOpenPostModal(false);
-          break;
-      }
-    } catch (e) {
-      console.error("Error - ", e);
-    }
-  };
-
-  const callBackPost = (data: any) => {
-    try {
-      switch (data?.action) {
-        case "comment":
-          setPosts(
-            posts.map((item: any) =>
-              item.id === data?.data?.id
-                ? { ...item, enableComment: true }
-                : item
-            )
-          );
-          setTimeout(() => {
-            setLoading(false);
-          }, 100);
-          break;
-        case "like":
-        case "dislike":
-          const formatted: any = {};
-          formatted.like = data?.data?.like || 0;
-          formatted.dislike = data?.data?.dislike || 0;
-          if (data?.action === "like") {
-            if (data?.data?.userLike) {
-              formatted.like = data?.data?.like - 1 || 0;
-              formatted.userLike = false;
-            } else {
-              if (data?.data?.userDislike) {
-                formatted.dislike = data?.data?.dislike - 1 || 0;
-              }
-              formatted.userLike = true;
-              formatted.like = data?.data?.like + 1 || 0;
-              formatted.userDislike = false;
-            }
-          } else {
-            if (data?.data?.userDislike) {
-              formatted.dislike = data?.data?.dislike - 1 || 0;
-              formatted.userDislike = false;
-            } else {
-              if (data?.data?.userLike) {
-                formatted.like = data?.data?.like - 1 || 0;
-              }
-              formatted.userDislike = true;
-              formatted.dislike = data?.data?.dislike + 1 || 0;
-              formatted.userLike = false;
-            }
-          }
-          formatted.likeV = UtilsSvc?.numberkFormatter(formatted?.like);
-          formatted.dislikeV = UtilsSvc?.numberkFormatter(formatted?.dislike);
-          setPosts((oldRecord: any) => {
-            oldRecord = posts.map((item: any) => {
-              return item.id === data?.data?.id
-                ? { ...item, ...formatted }
-                : item;
-            });
-            return [...oldRecord];
-          });
-          setTimeout(() => {
-            setLoading(false);
-          }, 100);
-          break;
-      }
-    } catch (e) {
-      console.error("Error - ", e);
+  const handleReply = () => {
+    if (replyContent.trim()) {
+      onReply(comment.id, replyContent);
+      setReplyContent("");
+      setShowReplyInput(false);
     }
   };
 
   return (
-    <>
-      {openPostModal && (
-        <NewPostModal
-          userInfo={userInfo}
-          loading={loading}
-          setLoading={setLoading}
-          callBackPostModal={callBackPostModal}
-        />
-      )}
-      <DefaultLayout>
-        <div className="flex items-center justify-between mb-10 mx-auto px-2 md:px-0 w-full max-w-3xl">
-          <button
-            type="button"
-            onClick={(e: any) => setOpenPostModal(true)}
-            className="flex items-center px-5 py-3 text-base font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-          >
-            <svg
-              className="w-6 h-6 text-white dark:text-white mr-2"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              fill="currentColor"
-              viewBox="0 0 24 24"
+    <div className={`mt-4 ${level > 0 ? "ml-6" : ""}`}>
+      <div className="flex items-start">
+        <Avatar src={comment.avatar} alt={comment.author} size="sm" />
+        <div className="ml-3 flex-grow">
+          <Typography variant="h6">{comment.author}</Typography>
+          <Typography>{comment.content}</Typography>
+          <div className="flex items-center mt-2">
+            <Button
+              size="sm"
+              variant="text"
+              className="flex items-center p-1"
+              onClick={() => setLiked(!liked)}
             >
-              <path
-                fillRule="evenodd"
-                d="M8 7V2.221a2 2 0 0 0-.5.365L3.586 6.5a2 2 0 0 0-.365.5H8Zm2 0V2h7a2 2 0 0 1 2 2v.126a5.087 5.087 0 0 0-4.74 1.368v.001l-6.642 6.642a3 3 0 0 0-.82 1.532l-.74 3.692a3 3 0 0 0 3.53 3.53l3.694-.738a3 3 0 0 0 1.532-.82L19 15.149V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9h5a2 2 0 0 0 2-2Z"
-                clipRule="evenodd"
-              />
-              <path
-                fillRule="evenodd"
-                d="M17.447 8.08a1.087 1.087 0 0 1 1.187.238l.002.001a1.088 1.088 0 0 1 0 1.539l-.377.377-1.54-1.542.373-.374.002-.001c.1-.102.22-.182.353-.237Zm-2.143 2.027-4.644 4.644-.385 1.924 1.925-.385 4.644-4.642-1.54-1.54Zm2.56-4.11a3.087 3.087 0 0 0-2.187.909l-6.645 6.645a1 1 0 0 0-.274.51l-.739 3.693a1 1 0 0 0 1.177 1.176l3.693-.738a1 1 0 0 0 .51-.274l6.65-6.646a3.088 3.088 0 0 0-2.185-5.275Z"
-                clipRule="evenodd"
-              />
-            </svg>
-            New Post
-          </button>
-
-          {/* <form className="flex-grow ml-4"> */}
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <svg
-                className="w-4 h-4 text-gray-500 dark:text-gray-900"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                />
-              </svg>
-            </div>
-            <input
-              type="search"
-              id="default-search"
-              className="block w-full p-4 pl-10 pr-32 text-sm text-gray-300 border border-white rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-500 dark:border-gray-400 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              placeholder="Search..."
-              required
-            />
-            <button
-              type="submit"
-              className="text-white absolute right-2.5 top-1/2 transform -translate-y-1/2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              {liked ? (
+                <HeartIconSolid className="w-4 h-4 text-red-500" />
+              ) : (
+                <HeartIconOutline className="w-4 h-4" />
+              )}
+              <span className="ml-1">{comment.likes + (liked ? 1 : 0)}</span>
+            </Button>
+            <Button
+              size="sm"
+              variant="text"
+              className="flex items-center ml-4 p-1"
+              onClick={() => setShowReplyInput(!showReplyInput)}
             >
-              Search
-            </button>
+              <ChatBubbleLeftEllipsisIcon className="w-4 h-4" />
+              <span className="ml-1">Reply</span>
+            </Button>
           </div>
-          {/* </form> */}
-        </div>
-
-        {posts?.map((obj: any, index: number) => (
-          <span key={index}>
-            <div className="mb-8">
-              <PostSection
-                data={obj}
-                loading={loading}
-                setLoading={setLoading}
-                enableComment={obj?.enableComment ? true : false}
-                callBackPost={callBackPost}
+          {showReplyInput && (
+            <div className="mt-2 flex items-center">
+              <Input
+                type="text"
+                placeholder="Write a reply..."
+                value={replyContent}
+                onChange={(e) => setReplyContent(e.target.value)}
+                className="flex-grow"
               />
+              <Button className="ml-2" onClick={handleReply}>
+                <PaperAirplaneIcon className="w-4 h-4" />
+              </Button>
             </div>
-            {obj?.enableComment && (
-              <div>
-                <AddComment
-                  rows={1}
-                  userInfo={userInfo}
-                  loading={loading}
-                  setLoading={setLoading}
-                  replyData={null}
-                  parentPost={obj}
-                  callBackAddComment={callBackAddComment}
-                />
-              </div>
-            )}
-
-            {obj?.comments?.map((comment: any, index2: number) => (
-              <span key={index2}>
-                <div>
-                  <CommentSection
-                    data={comment}
-                    loading={loading}
-                    setLoading={setLoading}
-                    parent={obj}
-                    parentReply={null}
-                    enableReply={
-                      Object.keys(comment?.reply).length === 0 &&
-                      !comment?.enableReply
-                        ? true
-                        : false
-                    }
-                    callBackComment={callBackComment}
-                  />
-                </div>
-                <div className="ml-8 -mt-11">
-                  {Object.keys(comment?.reply).length !== 0 ? (
-                    <div className="-mb-9">
-                      <CommentSection
-                        data={comment?.reply}
-                        parent={obj}
-                        parentReply={comment}
-                        enableReply={false}
-                        loading={loading}
-                        setLoading={setLoading}
-                        callBackComment={callBackComment}
-                      />
-                    </div>
-                  ) : (
-                    comment?.enableReply && (
-                      <div>
-                        <AddComment
-                          rows={1}
-                          userInfo={userInfo}
-                          loading={loading}
-                          setLoading={setLoading}
-                          replyData={comment}
-                          parentPost={obj}
-                          callBackAddComment={callBackAddComment}
-                        />
-                      </div>
-                    )
-                  )}
-                </div>
-              </span>
-            ))}
-          </span>
-        ))}
-      </DefaultLayout>
-    </>
+          )}
+        </div>
+      </div>
+      {comment.replies && comment.replies.length > 0 && (
+        <div className="mt-2">
+          {comment.replies.map((reply) => (
+            <Comment
+              key={reply.id}
+              comment={reply}
+              level={level + 1}
+              onReply={onReply}
+            />
+          ))}
+        </div>
+      )}
+    </div>
   );
-}
-export default Forum;
+};
+
+const Post = ({ post, updatePost }) => {
+  const [liked, setLiked] = useState(false);
+  const [showComments, setShowComments] = useState(false);
+  const [newComment, setNewComment] = useState("");
+
+  const handleAddComment = () => {
+    if (newComment.trim()) {
+      const updatedPost = {
+        ...post,
+        comments: [
+          ...post.comments,
+          {
+            id: Date.now(),
+            author: "Current User",
+            avatar:
+              "https://ui-avatars.com/api/?name=C+U&color=7F9CF5&background=EBF4FF",
+            content: newComment,
+            likes: 0,
+            replies: [],
+          },
+        ],
+      };
+      updatePost(updatedPost);
+      setNewComment("");
+    }
+  };
+
+  const handleReply = (commentId, replyContent) => {
+    const updatedPost = {
+      ...post,
+      comments: post.comments.map((comment) => {
+        if (comment.id === commentId) {
+          return {
+            ...comment,
+            replies: [
+              ...(comment.replies || []),
+              {
+                id: Date.now(),
+                author: "Current User",
+                avatar:
+                  "https://ui-avatars.com/api/?name=C+U&color=7F9CF5&background=EBF4FF",
+                content: replyContent,
+                likes: 0,
+              },
+            ],
+          };
+        }
+        return comment;
+      }),
+    };
+    updatePost(updatedPost);
+  };
+
+  return (
+    <Card className="mb-6">
+      <CardHeader
+        shadow={false}
+        floated={false}
+        className="flex items-center space-x-4 p-4"
+      >
+        <Avatar src={post.avatar} alt={post.author} size="md" />
+        <Typography variant="h5">{post.author}</Typography>
+      </CardHeader>
+      <CardBody className="p-0">
+        <div className="p-4">
+          <Typography>{post.content}</Typography>
+        </div>
+        <img
+          src={post.image}
+          alt="Post image"
+          className="w-full object-cover"
+        />
+      </CardBody>
+      <CardFooter className="pt-4">
+        <div className="flex justify-between items-center">
+          <div className="flex space-x-4">
+            <Button
+              size="sm"
+              variant="text"
+              className="flex items-center p-1"
+              onClick={() => setLiked(!liked)}
+            >
+              {liked ? (
+                <HeartIconSolid className="w-5 h-5 text-red-500" />
+              ) : (
+                <HeartIconOutline className="w-5 h-5" />
+              )}
+              <span className="ml-1">{post.likes + (liked ? 1 : 0)}</span>
+            </Button>
+            <Button
+              size="sm"
+              variant="text"
+              className="flex items-center p-1"
+              onClick={() => setShowComments(!showComments)}
+            >
+              <ChatBubbleLeftEllipsisIcon className="w-5 h-5" />
+              <span className="ml-1">{post.comments.length} Comments</span>
+            </Button>
+          </div>
+          <Button size="sm" variant="text" className="p-1">
+            <EllipsisHorizontalIcon className="w-5 h-5" />
+          </Button>
+        </div>
+        <div className="mt-4 flex items-center">
+          <Input
+            type="text"
+            placeholder="Add a comment..."
+            className="flex-grow"
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+          />
+          <Button className="ml-2" onClick={handleAddComment}>
+            <PaperAirplaneIcon className="w-4 h-4" />
+          </Button>
+        </div>
+        {showComments && (
+          <div className="mt-4">
+            {post.comments.map((comment) => (
+              <Comment
+                key={comment.id}
+                comment={comment}
+                onReply={handleReply}
+              />
+            ))}
+          </div>
+        )}
+      </CardFooter>
+    </Card>
+  );
+};
+
+const NewPostDialog = ({ open, handleOpen, addNewPost }) => {
+  const [postContent, setPostContent] = useState("");
+  const [image, setImage] = useState(null);
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => setImage(e.target.result);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = () => {
+    if (postContent.trim()) {
+      const newPost = {
+        id: Date.now(),
+        author: "Current User",
+        avatar:
+          "https://ui-avatars.com/api/?name=C+U&color=7F9CF5&background=EBF4FF",
+        content: postContent,
+        image:
+          image ||
+          "https://images.pexels.com/photos/128756/pexels-photo-128756.jpeg?cs=srgb&dl=pexels-crisdip-35358-128756.jpg&fm=jpg",
+        likes: 0,
+        comments: [],
+      };
+      addNewPost(newPost);
+      handleOpen();
+      setPostContent("");
+      setImage(null);
+    }
+  };
+
+  return (
+    <Dialog open={open} handler={handleOpen}>
+      <DialogHeader>Create a New Post</DialogHeader>
+      <DialogBody divider>
+        <Textarea
+          label="What's on your mind?"
+          value={postContent}
+          onChange={(e) => setPostContent(e.target.value)}
+          rows={4}
+        />
+        <div className="mt-4">
+          <Input type="file" accept="image/*" onChange={handleImageUpload} />
+          {image && (
+            <img
+              src={image}
+              alt="Uploaded"
+              className="mt-4 max-w-full h-auto"
+            />
+          )}
+        </div>
+      </DialogBody>
+      <DialogFooter>
+        <Button
+          variant="text"
+          color="red"
+          onClick={handleOpen}
+          className="mr-1"
+        >
+          <span>Cancel</span>
+        </Button>
+        <Button variant="gradient" color="green" onClick={handleSubmit}>
+          <span>Post</span>
+        </Button>
+      </DialogFooter>
+    </Dialog>
+  );
+};
+
+const QuoraLikeForum = () => {
+  const [posts, setPosts] = useState(initialPosts);
+  const [openNewPost, setOpenNewPost] = useState(false);
+
+  const addNewPost = (newPost) => {
+    setPosts([newPost, ...posts]);
+  };
+
+  const updatePost = (updatedPost) => {
+    setPosts(
+      posts.map((post) => (post.id === updatedPost.id ? updatedPost : post))
+    );
+  };
+
+  return (
+    <DefaultLayout>
+      <div className="container mx-auto lg:px-72 py-8">
+        <div className="flex justify-between items-center mb-6">
+          <Typography variant="h3">HappyTank Forum</Typography>
+          <Button
+            className="flex items-center"
+            onClick={() => setOpenNewPost(true)}
+          >
+            <CameraIcon className="w-5 h-5 mr-2" />
+            Create Post
+          </Button>
+        </div>
+        {posts.map((post) => (
+          <Post key={post.id} post={post} updatePost={updatePost} />
+        ))}
+        <NewPostDialog
+          open={openNewPost}
+          handleOpen={() => setOpenNewPost(!openNewPost)}
+          addNewPost={addNewPost}
+        />
+      </div>
+    </DefaultLayout>
+  );
+};
+
+export default QuoraLikeForum;

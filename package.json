@@ -31,6 +31,7 @@
     "emoji-picker-react": "^4.9.2",
     "formik": "^2.4.6",
     "framer-motion": "^11.2.3",
+    "prop-types": "^15.8.1",
     "react": "^18.2.0",
     "react-circle-progress-bar": "^0.1.4",
     "react-datepicker": "^7.2.0",
