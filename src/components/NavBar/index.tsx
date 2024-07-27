@@ -286,9 +286,9 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
         className="p-1 font-normal"
       >
         <NavLink
-          to="/forum/forum-home"
+          to="/forum"
           className={`flex items-center ${
-            isActive("/forum/forum-home") ? "font-bold text-blue-500" : ""
+            isActive("/forum") ? "font-bold text-blue-500" : ""
           }`}
         >
           Forum

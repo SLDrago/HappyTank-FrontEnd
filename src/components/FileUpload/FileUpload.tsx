@@ -28,7 +28,9 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
 
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const droppedFile = e.dataTransfer.files[0];
-      if (["image/jpeg", "image/png"].includes(droppedFile.type)) {
+      if (
+        ["image/jpeg", "image/png", "image/webp"].includes(droppedFile.type)
+      ) {
         setFile(droppedFile);
         onFileUpload(droppedFile);
       }
@@ -39,11 +41,18 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const selectedFile = e.target.files[0];
-      if (["image/jpeg", "image/png"].includes(selectedFile.type)) {
+      if (
+        ["image/jpeg", "image/png", "image/webp"].includes(selectedFile.type)
+      ) {
         setFile(selectedFile);
         onFileUpload(selectedFile);
       }
     }
+  };
+
+  const handleRemoveFile = () => {
+    setFile(null);
+    onFileUpload(null as any);
   };
 
   return (
@@ -57,35 +66,55 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
         onDrop={handleDrop}
       >
         <div className="text-center">
-          <PhotoIcon
-            className="mx-auto h-12 w-12 text-gray-300"
-            aria-hidden="true"
-          />
-          <div className="mt-4 flex text-sm leading-6 text-gray-600">
-            <label
-              htmlFor="file-upload"
-              className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
-            >
-              <span>Upload a file</span>
-              <input
-                id="file-upload"
-                name="file-upload"
-                type="file"
-                className="sr-only"
-                accept="image/jpeg, image/png"
-                onChange={handleFileChange}
+          {file ? (
+            <>
+              <img
+                src={URL.createObjectURL(file)}
+                alt="Preview"
+                className="mx-auto mb-4 max-h-60"
               />
-            </label>
-            <p className="pl-1">or drag and drop</p>
-          </div>
-          <p className="text-xs leading-5 text-gray-600">
-            PNG, JPG, JPEG up to 10MB
-          </p>
-          {file && (
-            <p className="text-xs leading-5 text-gray-600 mt-2">{file.name}</p>
+              <button
+                onClick={handleRemoveFile}
+                className="mt-2 text-sm font-semibold text-red-600 hover:text-red-800"
+              >
+                Remove
+              </button>
+            </>
+          ) : (
+            <>
+              <PhotoIcon
+                className="mx-auto h-12 w-12 text-gray-300"
+                aria-hidden="true"
+              />
+              <div className="mt-4 flex text-sm leading-6 text-gray-600">
+                <label
+                  htmlFor="file-upload"
+                  className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
+                >
+                  <span>Upload a file</span>
+                  <input
+                    id="file-upload"
+                    name="file-upload"
+                    type="file"
+                    className="sr-only"
+                    accept="image/jpeg, image/png, image/webp"
+                    onChange={handleFileChange}
+                  />
+                </label>
+                <p className="pl-1">or drag and drop</p>
+              </div>
+              <p className="text-xs leading-5 text-gray-600">
+                PNG, JPG, JPEG up to 10MB
+              </p>
+            </>
           )}
         </div>
       </div>
+      {file && (
+        <p className="text-xs leading-5 text-gray-600 mt-2 text-center">
+          {file.name}
+        </p>
+      )}
     </div>
   );
 };
