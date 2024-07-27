@@ -51,7 +51,7 @@ const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
           <OutlineStarIcon key={index} className="h-5 w-5 text-yellow-500" />
         ))}
       <Typography variant="small" color="blue-gray" className="ml-2">
-        {rating.toFixed(1)}
+        {parseFloat(rating).toFixed(1)}
       </Typography>
     </div>
   );
@@ -68,10 +68,16 @@ const AdCard: React.FC<AdCardProps> = ({
   const truncatedDescription = truncateText(description, 100);
   const displayPrice = !price || price === "0.00" ? "Free" : `Rs. ${price}`;
 
-  if (rating > 5) {
-    rating = 5;
-  } else if (rating < 0 || isNaN(rating) || rating == null) {
-    rating = 0;
+  // Sanitize the rating
+  let sanitizedRating = rating;
+  if (sanitizedRating > 5) {
+    sanitizedRating = 5;
+  } else if (
+    sanitizedRating < 0 ||
+    isNaN(sanitizedRating) ||
+    sanitizedRating == null
+  ) {
+    sanitizedRating = 0;
   }
 
   return (
@@ -96,7 +102,7 @@ const AdCard: React.FC<AdCardProps> = ({
         <NavLink to={link}>
           <Button>View</Button>
         </NavLink>
-        <StarRating rating={rating} />
+        <StarRating rating={sanitizedRating} />
       </CardFooter>
     </Card>
   );
