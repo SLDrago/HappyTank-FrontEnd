@@ -74,6 +74,10 @@ const Forum: React.FC = () => {
     );
   };
 
+  const deletePost = (postId: number) => {
+    setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
+  };
+
   const allPostsLoaded = lastPage !== null && page >= lastPage;
 
   return (
@@ -90,7 +94,12 @@ const Forum: React.FC = () => {
           </Button>
         </div>
         {posts.map((post) => (
-          <Post key={post.id} post={post} updatePost={updatePost} />
+          <Post
+            key={post.id}
+            post={post}
+            updatePost={updatePost}
+            deletePost={deletePost}
+          />
         ))}
         {loading && <PostSkeleton />}
         {!loading && !allPostsLoaded && (

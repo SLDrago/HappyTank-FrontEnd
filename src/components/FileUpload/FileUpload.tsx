@@ -1,13 +1,30 @@
-import React, { useState, DragEvent, ChangeEvent } from "react";
+import React, { useState, useEffect, DragEvent, ChangeEvent } from "react";
 import { PhotoIcon } from "@heroicons/react/20/solid";
 
 interface FileUploadProps {
-  onFileUpload: (file: File) => void;
+  onFileUpload: (file: File | null) => void;
+  initialImageUrl?: string;
 }
 
-const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
+const FileUpload: React.FC<FileUploadProps> = ({
+  onFileUpload,
+  initialImageUrl,
+}) => {
   const [file, setFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(
+    initialImageUrl || null
+  );
   const [dragging, setDragging] = useState(false);
+
+  useEffect(() => {
+    if (file) {
+      const objectUrl = URL.createObjectURL(file);
+      setPreviewUrl(objectUrl);
+      return () => URL.revokeObjectURL(objectUrl);
+    } else {
+      setPreviewUrl(initialImageUrl || null);
+    }
+  }, [file, initialImageUrl]);
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -52,7 +69,8 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
 
   const handleRemoveFile = () => {
     setFile(null);
-    onFileUpload(null as any);
+    setPreviewUrl(null);
+    onFileUpload(null);
   };
 
   return (
@@ -66,10 +84,10 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
         onDrop={handleDrop}
       >
         <div className="text-center">
-          {file ? (
+          {previewUrl ? (
             <>
               <img
-                src={URL.createObjectURL(file)}
+                src={previewUrl}
                 alt="Preview"
                 className="mx-auto mb-4 max-h-60"
               />
