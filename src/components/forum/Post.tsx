@@ -30,6 +30,9 @@ import Comment from "./Comment";
 import moment from "moment";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
+import UpdatePost from "./EditPostDialog";
+import ReportDialog from "./ReportDialog";
+import DeleteConfirm from "./DeleteConfirm";
 
 const backEndURL = import.meta.env.VITE_LARAVEL_APP_URL;
 
@@ -38,6 +41,7 @@ interface User {
   name: string;
   profile_photo_url: string;
   profile_photo_path: string;
+  role: string;
 }
 
 interface CommentData {
@@ -57,26 +61,40 @@ interface PostData {
   comments_count: number;
   created_at: string;
   comments: CommentData[];
+  likes: { user_id: number }[];
 }
 
 interface PostProps {
   post: PostData;
   updatePost: (post: PostData) => void;
+  deletePost: (postId: number) => void;
 }
 
-const Post: React.FC<PostProps> = ({ post, updatePost }) => {
+const Post: React.FC<PostProps> = ({ post, updatePost, deletePost }) => {
   const [liked, setLiked] = useState(false);
-  const [likesCount, setLikesCount] = useState(post.likes.length);
+  const [likesCount, setLikesCount] = useState(post.likes_count);
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [visibleComments, setVisibleComments] = useState(2);
+  const [isOwner, setIsOwner] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [reportDialogOpen, setReportDialogOpen] = useState(false);
+  const [deleteModelOpen, setDeleteModelOpen] = useState(false);
   const { token, user } = useAuth();
 
+  const handleEditPost = (updatedPost: any) => {
+    updatePost(updatedPost);
+  };
+
+  const handleDeletePost = () => {
+    deletePost(post.id);
+  };
   useEffect(() => {
-    // Check if the post is already liked by the user
     const isLiked = post.likes.some((like) => like.user_id === user?.id);
     setLiked(isLiked);
-  }, [post.likes, user?.id]);
+    const isOwn = post.user.id === user?.id;
+    setIsOwner(isOwn);
+  }, [post.likes, user?.id, post.user.id]);
 
   const handleLike = async () => {
     try {
@@ -203,7 +221,7 @@ const Post: React.FC<PostProps> = ({ post, updatePost }) => {
     }
   };
 
-  const urlify = (text) => {
+  const urlify = (text: string) => {
     const urlPattern = /(https?:\/\/[^\s]+)/g;
     return text.split(urlPattern).map((part, index) =>
       urlPattern.test(part) ? (
@@ -223,157 +241,187 @@ const Post: React.FC<PostProps> = ({ post, updatePost }) => {
   };
 
   return (
-    <Card className="mb-6">
-      <CardHeader
-        shadow={false}
-        floated={false}
-        className="flex items-center space-x-4 p-4"
-      >
-        {post.user.profile_photo_path ? (
-          <Avatar
-            src={`${backEndURL}${post.user.profile_photo_path}`}
-            alt={post.user.name}
-            size="md"
-          />
-        ) : (
-          <Avatar
-            src={post.user.profile_photo_url}
-            alt={post.user.name}
-            size="md"
-          />
-        )}
-        <div>
-          <Typography variant="h5" className="flex items-center gap-2">
-            {post.user.name}
-            {post.user.role === "shop" ? (
-              <BuildingStorefrontIcon className="h-5 w-5 text-gray-700" />
-            ) : post.user.role === "user" ? (
-              <UserIcon className="h-5 w-5 text-gray-700" />
-            ) : null}
-          </Typography>
-          <Typography variant="small">
-            {moment(post.created_at).format("YYYY-MM-DD h:mm A")}
-          </Typography>
-        </div>
-      </CardHeader>
-      <CardBody className="p-0">
-        <div className="p-4">
-          {post.image_url ? (
-            <Typography>{post.content}</Typography>
+    <>
+      <Card className="mb-6">
+        <CardHeader
+          shadow={false}
+          floated={false}
+          className="flex items-center space-x-4 p-4"
+        >
+          {post.user.profile_photo_path ? (
+            <Avatar
+              src={`${backEndURL}${post.user.profile_photo_path}`}
+              alt={post.user.name}
+              size="md"
+            />
           ) : (
-            <Typography
-              variant="h3"
-              className="text-center"
-              style={{ wordBreak: "break-word" }}
-            >
-              {urlify(post.content)}
-            </Typography>
+            <Avatar
+              src={post.user.profile_photo_url}
+              alt={post.user.name}
+              size="md"
+            />
           )}
-        </div>
-        {post.image_url && (
-          <img
-            src={backEndURL + post.image_url}
-            alt="Post image"
-            className="w-full object-cover"
-          />
-        )}
-      </CardBody>
-      <CardFooter className="pt-4">
-        <div className="flex justify-between items-center">
-          <div className="flex space-x-4">
-            <Button
-              size="md"
-              variant="text"
-              className="flex items-center p-1"
-              onClick={liked ? handleUnlike : handleLike}
-            >
-              {liked ? (
-                <HeartIconSolid className="w-5 h-5 text-red-500" />
-              ) : (
-                <HeartIconOutline className="w-5 h-5" />
-              )}
-              <span className="ml-1">{likesCount}</span>
-            </Button>
-            <Button
-              size="md"
-              variant="text"
-              className="flex items-center p-1"
-              onClick={() => setShowComments(!showComments)}
-            >
-              <ChatBubbleLeftEllipsisIcon className="w-5 h-5" />
-              <span className="ml-1">{post.comments.length} Comments</span>
-            </Button>
+          <div>
+            <Typography variant="h5" className="flex items-center gap-2">
+              {post.user.name}
+              {post.user.role === "shop" ? (
+                <BuildingStorefrontIcon className="h-5 w-5 text-gray-700" />
+              ) : post.user.role === "user" ? (
+                <UserIcon className="h-5 w-5 text-gray-700" />
+              ) : null}
+            </Typography>
+            <Typography variant="small">
+              {moment(post.created_at).format("YYYY-MM-DD h:mm A")}
+            </Typography>
           </div>
-          <Popover placement="top-end">
-            <PopoverHandler>
-              <Button size="md" variant="text" className="p-1">
-                <EllipsisHorizontalIcon className="w-5 h-5" />
-              </Button>
-            </PopoverHandler>
-            <PopoverContent className="flex align-middle flex-col">
-              <Button
-                size="sm"
-                variant="text"
-                color="red"
-                className="w-full flex items-center"
+        </CardHeader>
+        <CardBody className="p-0">
+          <div className="p-4">
+            {post.image_url ? (
+              <Typography>{post.content}</Typography>
+            ) : (
+              <Typography
+                variant="h3"
+                className="text-center"
+                style={{ wordBreak: "break-word" }}
               >
-                <ExclamationTriangleIcon className="w-4 h-4 mr-2" />
-                Report
-              </Button>
-              <Button
-                size="sm"
-                variant="text"
-                className="w-full flex items-center"
-              >
-                <PencilIcon className="w-4 h-4 mr-2" />
-                Edit
-              </Button>
-              <Button
-                size="sm"
-                variant="text"
-                color="red"
-                className="w-full flex items-center"
-              >
-                <TrashIcon className="w-4 h-4 mr-2" />
-                Delete
-              </Button>
-            </PopoverContent>
-          </Popover>
-        </div>
-        <div className="mt-4 flex items-center">
-          <Input
-            type="text"
-            placeholder="Add a comment..."
-            className="flex-grow"
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-          />
-          <Button className="ml-2" onClick={handleAddComment}>
-            <PaperAirplaneIcon className="w-4 h-4" />
-          </Button>
-        </div>
-        {showComments && (
-          <div className="mt-4">
-            {post.comments.slice(0, visibleComments).map((comment: any) => (
-              <Comment
-                key={comment.id}
-                comment={comment}
-                onReply={handleReply}
-              />
-            ))}
-            {visibleComments < post.comments.length && (
-              <Button
-                size="sm"
-                variant="text"
-                onClick={() => setVisibleComments(visibleComments + 3)}
-              >
-                See More Comments
-              </Button>
+                {urlify(post.content)}
+              </Typography>
             )}
           </div>
-        )}
-      </CardFooter>
-    </Card>
+          {post.image_url && (
+            <img
+              src={backEndURL + post.image_url}
+              alt="Post image"
+              className="w-full object-cover"
+            />
+          )}
+        </CardBody>
+        <CardFooter className="pt-4">
+          <div className="flex justify-between items-center">
+            <div className="flex space-x-4">
+              <Button
+                size="md"
+                variant="text"
+                className="flex items-center p-1"
+                onClick={liked ? handleUnlike : handleLike}
+              >
+                {liked ? (
+                  <HeartIconSolid className="w-5 h-5 text-red-500" />
+                ) : (
+                  <HeartIconOutline className="w-5 h-5" />
+                )}
+                <span className="ml-1">{likesCount}</span>
+              </Button>
+              <Button
+                size="md"
+                variant="text"
+                className="flex items-center p-1"
+                onClick={() => setShowComments(!showComments)}
+              >
+                <ChatBubbleLeftEllipsisIcon className="w-5 h-5" />
+                <span className="ml-1">{post.comments_count} Comments</span>
+              </Button>
+            </div>
+            <Popover placement="top-end">
+              <PopoverHandler>
+                <Button size="md" variant="text" className="p-1">
+                  <EllipsisHorizontalIcon className="w-5 h-5" />
+                </Button>
+              </PopoverHandler>
+              <PopoverContent className="flex align-middle flex-col">
+                {!isOwner ? (
+                  <Button
+                    size="sm"
+                    variant="text"
+                    color="red"
+                    className="w-full flex items-center"
+                    onClick={() => setReportDialogOpen(true)}
+                  >
+                    <ExclamationTriangleIcon className="w-4 h-4 mr-2" />
+                    Report
+                  </Button>
+                ) : (
+                  <>
+                    <Button
+                      size="sm"
+                      variant="text"
+                      className="w-full flex items-center"
+                      onClick={() => setEditDialogOpen(true)}
+                    >
+                      <PencilIcon className="w-4 h-4 mr-2" />
+                      Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="text"
+                      color="red"
+                      className="w-full flex items-center"
+                      onClick={() => setDeleteModelOpen(true)}
+                    >
+                      <TrashIcon className="w-4 h-4 mr-2" />
+                      Delete
+                    </Button>
+                  </>
+                )}
+              </PopoverContent>
+            </Popover>
+          </div>
+          <div className="mt-4 flex items-center">
+            <Input
+              type="text"
+              placeholder="Add a comment..."
+              className="flex-grow"
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+            />
+            <Button className="ml-2" onClick={handleAddComment}>
+              <PaperAirplaneIcon className="w-4 h-4" />
+            </Button>
+          </div>
+          {showComments && (
+            <div className="mt-4">
+              {post.comments.slice(0, visibleComments).map((comment: any) => (
+                <Comment
+                  key={comment.id}
+                  comment={comment}
+                  onReply={handleReply}
+                />
+              ))}
+              {visibleComments < post.comments.length && (
+                <Button
+                  size="sm"
+                  variant="text"
+                  onClick={() => setVisibleComments(visibleComments + 3)}
+                >
+                  See More Comments
+                </Button>
+              )}
+            </div>
+          )}
+        </CardFooter>
+      </Card>
+
+      <UpdatePost
+        open={editDialogOpen}
+        onClose={() => setEditDialogOpen(false)}
+        postId={post.id.toString()}
+        onUpdate={handleEditPost}
+      />
+
+      <ReportDialog
+        postId={post.id}
+        isOpen={reportDialogOpen}
+        onClose={() => setReportDialogOpen(false)}
+      />
+
+      <DeleteConfirm
+        postId={post.id}
+        isOpen={deleteModelOpen}
+        onClose={() => setDeleteModelOpen(false)}
+        onDelete={handleDeletePost}
+      />
+    </>
   );
 };
 
