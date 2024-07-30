@@ -20,6 +20,7 @@ import ProfilePage from "./pages/Settings/ProfilePage";
 import ManageAdvertisementPage from "./pages/Settings/ManageAdvertisment";
 import AdditionalDetails from "./pages/AdditionalDetails/AdditionalDeatails";
 import TankDesign from "./pages/TankDesign/TankDesign";
+import ManageForum from "./pages/Settings/ManageForum";
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -144,6 +145,15 @@ function App() {
             <>
               <PageTitle title="Settings | HappyTank" />
               <ManageAdvertisementPage />
+            </>
+          }
+        />
+        <Route
+          path="/settings/posts"
+          element={
+            <>
+              <PageTitle title="Settings | HappyTank" />
+              <ManageForum />
             </>
           }
         />
