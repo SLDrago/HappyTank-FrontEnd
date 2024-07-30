@@ -21,6 +21,7 @@ import ManageAdvertisementPage from "./pages/Settings/ManageAdvertisment";
 import AdditionalDetails from "./pages/AdditionalDetails/AdditionalDeatails";
 import TankDesign from "./pages/TankDesign/TankDesign";
 import ManageForum from "./pages/Settings/ManageForum";
+import DiscountedProducts from "./pages/Advertisement/DiscountedProducts";
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -120,7 +121,15 @@ function App() {
             </>
           }
         />
-
+        <Route
+          path="/advertisements/discount-products"
+          element={
+            <>
+              <PageTitle title="Advertisement Platform | HappyTank" />
+              <DiscountedProducts />
+            </>
+          }
+        />
         <Route
           path="/advertisements/products/*"
           element={
@@ -130,6 +139,7 @@ function App() {
             </>
           }
         />
+
         <Route
           path="/settings/profile"
           element={

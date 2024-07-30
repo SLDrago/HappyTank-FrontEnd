@@ -18,6 +18,7 @@ interface AdCardProps {
   link: string;
   rating: number;
   price?: string;
+  discount?: string;
 }
 
 const truncateText = (text: string, maxLength: number) => {
@@ -64,9 +65,25 @@ const AdCard: React.FC<AdCardProps> = ({
   link,
   rating,
   price,
+  discount,
 }) => {
   const truncatedDescription = truncateText(description, 100);
-  const displayPrice = !price || price === "0.00" ? "Free" : `Rs. ${price}`;
+
+  const calculateDiscountedPrice = (
+    originalPrice: string,
+    discountPercentage: string
+  ) => {
+    const priceNumber = parseFloat(originalPrice);
+    const discountNumber = parseFloat(discountPercentage);
+    return (priceNumber * (1 - discountNumber / 100)).toFixed(2);
+  };
+
+  const hasDiscount = discount && parseFloat(discount) > 0;
+  const originalPrice = price && price !== "0.00" ? `Rs. ${price}` : "Free";
+  const discountedPrice =
+    hasDiscount && price
+      ? `Rs. ${calculateDiscountedPrice(price, discount)}`
+      : null;
 
   // Sanitize the rating
   let sanitizedRating = rating;
@@ -94,9 +111,25 @@ const AdCard: React.FC<AdCardProps> = ({
           {title}
         </Typography>
         <Typography className="mb-2">{truncatedDescription}</Typography>
-        <Typography variant="h6" color="green" className="mb-2">
-          {displayPrice}
-        </Typography>
+        <div className="flex items-center space-x-2 mb-2">
+          {hasDiscount ? (
+            <>
+              <Typography variant="h6" color="gray" className="line-through">
+                {originalPrice}
+              </Typography>
+              <Typography variant="h6" color="green">
+                {discountedPrice}
+              </Typography>
+              <Typography variant="small" color="red">
+                ({parseFloat(discount).toFixed(1)}% off)
+              </Typography>
+            </>
+          ) : (
+            <Typography variant="h6" color="green">
+              {originalPrice}
+            </Typography>
+          )}
+        </div>
       </CardBody>
       <CardFooter className="pt-0 flex items-center justify-between">
         <NavLink to={link}>

@@ -8,11 +8,11 @@ import Breadcrumb from "../../components/Advertisement/BreadCrumb";
 import axios from "axios";
 import AdCardSkeltons from "../../components/Advertisement/AdCardSkeltons";
 import NoAdsFound from "../../components/Advertisement/NoAdsFound";
-import DiscountBanner from "../../images/DiscountBanner/DiscountBanner.png";
+import { ArrowLeftIcon } from "@heroicons/react/24/solid";
 
 const backEndURL = import.meta.env.VITE_LARAVEL_APP_URL;
 
-const Products: React.FC = () => {
+const DiscountedProducts: React.FC = () => {
   const [searchParams] = useSearchParams();
   const initialSearchTerm = searchParams.get("search") || "";
   const initialCategory = searchParams.get("category") || "";
@@ -25,7 +25,6 @@ const Products: React.FC = () => {
   const [categoryName, setCategoryName] = useState<string>("");
 
   useEffect(() => {
-    // Initial fetch when component mounts or searchTerm or category changes
     fetchAdvertisements({
       searchTerm: initialSearchTerm,
       category: initialCategory,
@@ -40,10 +39,10 @@ const Products: React.FC = () => {
     city?: string;
   }) => {
     setIsLoading(true);
-    setAdvertisements([]); // Clear previous ads before loading new ones
+    setAdvertisements([]);
 
     axios
-      .post(`${backEndURL}/api/advertisement/filterAdvertisements`, {
+      .post(`${backEndURL}/api/advertisement/filterAdvertisementsDiscounts`, {
         search: filters?.searchTerm || "",
         category: filters?.category || "",
         min_price: filters?.minPrice || null,
@@ -57,7 +56,7 @@ const Products: React.FC = () => {
         setTotalPages(response.data.meta?.last_page || 1);
         setCurrentPage(1);
         setIsLoading(false);
-        setInitialLoad(false); // Set initialLoad to false after the first fetch
+        setInitialLoad(false);
       })
       .catch((error) => {
         console.error("Error fetching advertisements:", error);
@@ -75,7 +74,7 @@ const Products: React.FC = () => {
     },
     categoryName: string
   ) => {
-    setCategoryName(categoryName); // Set the category name
+    setCategoryName(categoryName);
     fetchAdvertisements(filters);
   };
 
@@ -84,7 +83,7 @@ const Products: React.FC = () => {
     setIsLoading(true);
 
     axios
-      .post(`${backEndURL}/api/advertisement/filterAdvertisements`, {
+      .post(`${backEndURL}/api/advertisement/filterAdvertisementsDiscounts`, {
         search: searchTerm,
         category: initialCategory,
         min_price: null,
@@ -112,14 +111,11 @@ const Products: React.FC = () => {
         initialSearchTerm={searchTerm}
         initialCategory={initialCategory}
       />
-      <NavLink to="/advertisements/discount-products">
-        <div className="w-full h-auto">
-          <img
-            className="h-56 w-full rounded-lg object-cover object-center mb-10"
-            src={DiscountBanner}
-            alt="discount-banner"
-          />
-        </div>
+      <NavLink to={`/advertisements/products`}>
+        <Button className="flex items-center gap-3 mb-4">
+          <ArrowLeftIcon className="w-5 h-5" />
+          Back
+        </Button>
       </NavLink>
       {isLoading && <AdCardSkeltons />}
       {!isLoading && advertisements.length === 0 && (
@@ -157,4 +153,4 @@ const Products: React.FC = () => {
   );
 };
 
-export default Products;
+export default DiscountedProducts;

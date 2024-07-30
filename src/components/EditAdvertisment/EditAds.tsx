@@ -39,6 +39,7 @@ const EditAdds: React.FC<EditAddsProps> = ({ isOpen, onClose, ad, onSave }) => {
   const [smallDescription, setSmallDescription] = useState(ad.smallDescription);
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+  const [discount, setDiscount] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [tags, setTags] = useState("");
   const [priceBasedOn, setPriceBasedOn] = useState("");
@@ -74,6 +75,7 @@ const EditAdds: React.FC<EditAddsProps> = ({ isOpen, onClose, ad, onSave }) => {
       setSmallDescription(adDetails.small_description);
       setDescription(adDetails.description);
       setPrice(adDetails.price);
+      setDiscount(adDetails.discount);
       setPriceBasedOn(adDetails.price_based_on);
       setSelectedCategory(adDetails.category_id);
       setTags(adDetails.tags);
@@ -89,6 +91,7 @@ const EditAdds: React.FC<EditAddsProps> = ({ isOpen, onClose, ad, onSave }) => {
       small_description: smallDescription,
       description,
       price,
+      discount,
       price_based_on: priceBasedOn,
       category_id: selectedCategory,
       tags,
@@ -159,11 +162,19 @@ const EditAdds: React.FC<EditAddsProps> = ({ isOpen, onClose, ad, onSave }) => {
                 className="h-32 mb-14"
               />
             </label>
-            <Input
-              label="Price"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-            />
+            <div className="flex items-center gap-3">
+              <Input
+                label="Price"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+              />
+              <Input
+                label="Discount"
+                value={discount}
+                onChange={(e) => setDiscount(e.target.value)}
+                icon={<span className="text-gray-500">%</span>}
+              />
+            </div>
             <Input
               label="Price Based on"
               value={priceBasedOn}

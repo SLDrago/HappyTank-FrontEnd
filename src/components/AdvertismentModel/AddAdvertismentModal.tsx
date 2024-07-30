@@ -17,6 +17,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+const backEndURL = import.meta.env.VITE_LARAVEL_APP_URL;
+
 interface Category {
   id: number;
   name: string;
@@ -36,6 +38,7 @@ const AddAdvertisementModal: React.FC<AddAdvertisementModalProps> = ({
   const [description, setDescription] = useState("");
   const [images, setImages] = useState<File[]>([]);
   const [price, setPrice] = useState("");
+  const [discount, setDiscount] = useState("");
   const [priceBasedOn, setPriceBasedOn] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
@@ -46,9 +49,7 @@ const AddAdvertisementModal: React.FC<AddAdvertisementModalProps> = ({
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get(
-          "http://127.0.0.1:8000/api/getCategories"
-        );
+        const response = await axios.get(`${backEndURL}/api/getCategories`);
         setCategories(response.data.data);
       } catch (error) {
         console.error("Failed to fetch categories:", error);
@@ -96,6 +97,7 @@ const AddAdvertisementModal: React.FC<AddAdvertisementModalProps> = ({
       formData.append("small_description", smallDescription);
       formData.append("description", description);
       formData.append("price", price);
+      formData.append("discount", discount);
       formData.append("price_based_on", priceBasedOn);
       formData.append("category_id", selectedCategory?.toString() || "");
       formData.append("tags", tags);
@@ -103,7 +105,7 @@ const AddAdvertisementModal: React.FC<AddAdvertisementModalProps> = ({
 
       try {
         const response = await axios.post(
-          "http://127.0.0.1:8000/api/advertisement/addAdvertisement",
+          `${backEndURL}/api/advertisement/addAdvertisement`,
           formData,
           {
             headers: {
@@ -245,11 +247,19 @@ const AddAdvertisementModal: React.FC<AddAdvertisementModalProps> = ({
               ))}
             </div>
           </div>
-          <Input
-            label="Price"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-          />
+          <div className="flex items-center gap-3">
+            <Input
+              label="Price"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+            />
+            <Input
+              label="Discount"
+              value={discount}
+              onChange={(e) => setDiscount(e.target.value)}
+              icon={<span className="text-gray-500">%</span>}
+            />
+          </div>
           <Input
             label="Price Based on"
             value={priceBasedOn}
