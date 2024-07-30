@@ -15,6 +15,7 @@ import {
   NewspaperIcon,
   Bars3Icon,
   XMarkIcon,
+  PhotoIcon,
 } from "@heroicons/react/24/solid";
 import Logo from "../../images/Logos/logo.svg";
 import { useAuth } from "../../context/AuthContext";
@@ -70,6 +71,20 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
             </ListItemPrefix>
             <Typography variant="paragraph" color="white" className="ml-2">
               Manage Advertisement
+            </Typography>
+          </ListItem>
+        </Link>
+        <Link
+          to="/settings/posts"
+          className="flex items-center w-full"
+          onClick={closeDrawer}
+        >
+          <ListItem selected={location.pathname === "/settings/posts"}>
+            <ListItemPrefix>
+              <PhotoIcon className="w-5 h-5 text-white" />
+            </ListItemPrefix>
+            <Typography variant="paragraph" color="white" className="ml-2">
+              Manage Posts
             </Typography>
           </ListItem>
         </Link>
