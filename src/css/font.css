@@ -1,0 +1,18 @@
+@import url(https://db.onlinewebfonts.com/c/d8a4964eec2c4a693d6722609068043c?family=PolySans+Slim);
+@import url(https://db.onlinewebfonts.com/c/cec88e5a4cf367c4620cd23c5a184439?family=PolySans+Median);
+@import url(https://db.onlinewebfonts.com/c/2647fc7d42fb0cffe65f61dc82847883?family=Cirka);
+
+.Polysans_median {
+
+    font-family: "PolySans Median" !important;
+
+}
+
+.Polysans_slim {
+    font-family: "PolySans Slim" !important;
+
+}
+
+.cirka {
+    font-family: "Cirka" !important;
+}
