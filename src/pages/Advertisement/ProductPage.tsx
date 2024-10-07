@@ -63,7 +63,6 @@ export function ProductPage() {
   const { token } = useAuth();
   const [isReporting, setIsReporting] = useState(false);
 
-  // State for related advertisements pagination
   const [relatedCurrentPage, setRelatedCurrentPage] = useState(1);
   const [relatedTotalPages, setRelatedTotalPages] = useState(1);
 
@@ -98,159 +97,79 @@ export function ProductPage() {
   };
 
   useEffect(() => {
-    const fetchAdvertisement = async () => {
+    const fetchAllAdvertisementDetails = async () => {
+      setIsLoading(true);
       try {
         const response = await axios.post(
-          `${backEndURL}/api/advertisement/getAdvertisementById`,
-          { id }
+          `${backEndURL}/api/advertisement/getAllAdvertisementDetails`,
+          { id: id }
         );
-        if (response.data.advertisement) {
-          setAdvertisement(response.data.advertisement);
-          setUserInformation(response.data.user_information);
-          setAdvertisementNotFound(false); // Reset to false if found
-        } else {
-          setAdvertisementNotFound(true); // Set to true if not found
-        }
+
+        const {
+          advertisement: { advertisement, user_information },
+          reviews: { pagination, reviews, review_count, avg_rating },
+          related_advertisements,
+        } = response.data;
+
+        const lastPage = pagination?.last_page || 1;
+        setAdvertisement(advertisement);
+        setUserInformation(user_information);
+        setReviews(reviews);
+        setReviewCount(review_count);
+        setAvgRating(avg_rating);
+        setRelatedAdvertisements(related_advertisements);
+        console.log(relatedAdvertisements);
+        setCurrentPage(1);
+        setTotalPages(lastPage);
+        setAdvertisementNotFound(false);
       } catch (error) {
         console.error("Error fetching advertisement data:", error);
-        setAdvertisementNotFound(true); // Set to true on error
+        setAdvertisementNotFound(true);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     if (!id) {
       navigate("/advertisements/products");
     } else {
-      fetchAdvertisement();
+      fetchAllAdvertisementDetails();
     }
   }, [id, navigate]);
 
-  useEffect(() => {
-    const fetchRelatedAdvertisements = async () => {
-      if (advertisement) {
-        setRelatedAdvertisementsLoading(true);
-        try {
-          const response = await axios.post(
-            `${backEndURL}/api/advertisement/searchRelatedAdvertisements`,
-            {
-              tags: advertisement.tags,
-              city: userInformation?.city,
-              page: 1,
-              per_page: 3,
-            }
-          );
-          setRelatedAdvertisements(response.data.advertisements);
-          setRelatedTotalPages(response.data.pagination.last_page);
-          setRelatedCurrentPage(response.data.pagination.current_page);
-        } catch (error) {
-          console.error("Error fetching related advertisements:", error);
-        } finally {
-          setRelatedAdvertisementsLoading(false);
-        }
-      }
-    };
-
-    fetchRelatedAdvertisements();
-  }, [advertisement, userInformation]);
-
-  useEffect(() => {
-    if (advertisement) {
-      const fetchReviews = async (page = 1) => {
-        setIsLoading(true);
-        try {
-          const response = await axios.post(
-            `${backEndURL}/api/review/getReviewByAdvertisementId`,
-            {
-              advertisement_id: id,
-              page,
-              per_page: 3,
-            }
-          );
-
-          setReviews((prev) =>
-            page === 1
-              ? response.data.reviews
-              : [...prev, ...response.data.reviews]
-          );
-          setReviewCount(response.data.review_count);
-          setAvgRating(response.data.avg_rating);
-          setCurrentPage(response.data.pagination.current_page);
-          setTotalPages(response.data.pagination.last_page);
-        } catch (error) {
-          console.error("Error fetching reviews:", error);
-        } finally {
-          setIsLoading(false);
-        }
-      };
-
-      fetchReviews(1);
-    }
-  }, [advertisement, id]);
-
-  const handleSeeMore = () => {
+  const handleSeeMore = async () => {
     if (currentPage < totalPages) {
-      const fetchReviews = async (page = 1) => {
-        setIsLoading(true);
-        try {
-          const response = await axios.post(
-            `${backEndURL}/api/review/getReviewByAdvertisementId`,
-            {
-              advertisement_id: id,
-              page,
-              per_page: 3,
-            }
-          );
+      setIsLoading(true);
+      try {
+        const response = await axios.post(
+          `${backEndURL}/api/advertisement/getAllAdvertisementDetails`,
+          { id: id, page: currentPage + 1 }
+        );
 
-          setReviews((prev) =>
-            page === 1
-              ? response.data.reviews
-              : [...prev, ...response.data.reviews]
-          );
-          setReviewCount(response.data.review_count);
-          setAvgRating(response.data.avg_rating);
-          setCurrentPage(response.data.pagination.current_page);
-          setTotalPages(response.data.pagination.last_page);
-        } catch (error) {
-          console.error("Error fetching reviews:", error);
-        } finally {
-          setIsLoading(false);
-        }
-      };
-
-      fetchReviews(currentPage + 1);
+        setReviews((prev) => [...prev, ...response.data.reviews]);
+        setCurrentPage(response.data.reviews.pagination.current_page);
+      } catch (error) {
+        console.error("Error fetching more reviews:", error);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
-  useEffect(() => {
-    if (advertisement) {
-      fetchReviews(1);
-    }
-  }, [advertisement, id]);
-
-  useEffect(() => {
-    const userData = localStorage.getItem("user");
-    if (userData) {
-      const userObject = JSON.parse(userData);
-      setUserRole(userObject.role);
-    }
-  }, []);
-
-  // Function to fetch related advertisements with pagination
-  const fetchRelatedAdvertisements = async (page = 1) => {
-    if (advertisement) {
+  const handleSeeMoreRelated = async () => {
+    if (relatedCurrentPage < relatedTotalPages) {
       setRelatedAdvertisementsLoading(true);
       try {
         const response = await axios.post(
-          `${backEndURL}/api/advertisement/searchRelatedAdvertisements`,
-          {
-            tags: advertisement.tags,
-            city: userInformation?.city,
-            page: page,
-            per_page: 3,
-          }
+          `${backEndURL}/api/advertisement/getAllAdvertisementDetails`,
+          { id: id, page: relatedCurrentPage + 1 }
         );
-        setRelatedAdvertisements(response.data.advertisements);
-        setRelatedTotalPages(response.data.pagination.last_page);
-        setRelatedCurrentPage(response.data.pagination.current_page);
+
+        setRelatedAdvertisements((prev) => [
+          ...prev,
+          ...response.data.related_advertisements,
+        ]);
+        setRelatedCurrentPage(response.data.related_pagination.current_page);
       } catch (error) {
         console.error("Error fetching related advertisements:", error);
       } finally {
@@ -259,12 +178,13 @@ export function ProductPage() {
     }
   };
 
-  // Handle see more related advertisements
-  const handleSeeMoreRelated = () => {
-    if (relatedCurrentPage < relatedTotalPages) {
-      fetchRelatedAdvertisements(relatedCurrentPage + 1);
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const userObject = JSON.parse(userData);
+      setUserRole(userObject.role);
     }
-  };
+  }, []);
 
   if (advertisementNotFound) {
     return <NotFound404 />;
@@ -276,7 +196,7 @@ export function ProductPage() {
         <Typography type="h3" className="text-2xl">
           Loading Advertisement...
         </Typography>
-        <Spinner className="" />
+        <Spinner />
       </div>
     );
   }
@@ -285,7 +205,6 @@ export function ProductPage() {
     advertisement;
   const imageUrls = images.map((img) => backEndURL + img.image_url);
 
-  // Ensure gps_coordinates are defined
   const gpsCoordinates = userInformation?.gps_coordinates;
 
   const { phone_number, socialmedia_links, working_hours } = userInformation;
@@ -310,7 +229,7 @@ export function ProductPage() {
     const makeReport = async () => {
       setIsReporting(true);
       try {
-        const response = await axios.post(
+        await axios.post(
           `${backEndURL}/api/report/addReport`,
           {
             content_type: "Advertisement",
@@ -325,25 +244,7 @@ export function ProductPage() {
         );
         toast.success("Report Made Successfully!");
       } catch (error) {
-        if (axios.isAxiosError(error)) {
-          if (error.response?.status === 409) {
-            toast.warning(
-              error.response.data.message ||
-                "You have already reported this content"
-            );
-          } else if (error.response?.data?.errors) {
-            const errorMessages = Object.values(
-              error.response.data.errors
-            ).flat();
-            toast.error(errorMessages.join(", "));
-          } else {
-            toast.error(
-              error.response?.data?.message || "An unexpected error occurred"
-            );
-          }
-        } else {
-          toast.error("An unexpected error occurred. Please try again.");
-        }
+        toast.error("An error occurred while making the report.");
       } finally {
         setIsReporting(false);
       }

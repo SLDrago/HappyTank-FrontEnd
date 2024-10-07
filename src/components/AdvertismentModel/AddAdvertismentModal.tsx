@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogHeader,
@@ -15,6 +15,9 @@ import {
 import ReactQuill from "react-quill";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import FormValidateErrorMsg from "../Verification/FormValidationErrorMsg";
 import "react-toastify/dist/ReactToastify.css";
 
 const backEndURL = import.meta.env.VITE_LARAVEL_APP_URL;
@@ -33,18 +36,10 @@ const AddAdvertisementModal: React.FC<AddAdvertisementModalProps> = ({
   open,
   handleClose,
 }) => {
-  const [title, setTitle] = useState("");
-  const [smallDescription, setSmallDescription] = useState("");
-  const [description, setDescription] = useState("");
-  const [images, setImages] = useState<File[]>([]);
-  const [price, setPrice] = useState("");
-  const [discount, setDiscount] = useState("");
-  const [priceBasedOn, setPriceBasedOn] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-  const [tags, setTags] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [images, setImages] = useState<File[]>([]);
   const [imageError, setImageError] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState("");
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -59,6 +54,76 @@ const AddAdvertisementModal: React.FC<AddAdvertisementModalProps> = ({
     fetchCategories();
   }, []);
 
+  const formik = useFormik({
+    initialValues: {
+      title: "",
+      smallDescription: "",
+      description: "",
+      price: "",
+      discount: "",
+      priceBasedOn: "",
+      tags: "",
+    },
+    validationSchema: Yup.object({
+      title: Yup.string().required("Title is required"),
+      smallDescription: Yup.string().required("Small description is required"),
+      description: Yup.string().required("Description is required"),
+      price: Yup.number()
+        .typeError("Price must be a number")
+        .required("Price is required"),
+      discount: Yup.number()
+        .typeError("Discount must be a number")
+        .min(0, "Discount cannot be less than 0")
+        .max(100, "Discount cannot be more than 100"),
+      priceBasedOn: Yup.string().required("Price based on is required"),
+      tags: Yup.string()
+        .matches(
+          /^[a-zA-Z0-9\s,]+$/,
+          "Tags must be comma-separated (e.g., tag1,tag2,tag3)"
+        )
+        .required("Tags are required"),
+    }),
+    onSubmit: async (values) => {
+      if (images.length < 2) {
+        setImageError("You must upload at least 2 images.");
+        return;
+      } else if (images.length > 5) {
+        setImageError("You can upload a maximum of 5 images.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("title", values.title);
+      formData.append("small_description", values.smallDescription);
+      formData.append("description", values.description);
+      formData.append("price", values.price);
+      formData.append("discount", values.discount);
+      formData.append("price_based_on", values.priceBasedOn);
+      formData.append("category_id", selectedCategory);
+      formData.append("tags", values.tags);
+      images.forEach((image) => {
+        formData.append("image_url[]", image);
+      });
+
+      try {
+        await axios.post(
+          `${backEndURL}/api/advertisement/addAdvertisement`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+          }
+        );
+        toast.success("Advertisement added successfully.");
+        handleClose();
+      } catch (error) {
+        toast.error("Failed to add advertisement. Please try again.");
+      }
+    },
+  });
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const selectedFiles = Array.from(e.target.files);
@@ -72,9 +137,8 @@ const AddAdvertisementModal: React.FC<AddAdvertisementModalProps> = ({
       }
 
       if (images.length + validImages.length > 5) {
-        setError("You can upload a maximum of 5 images.");
+        setImageError("You can upload a maximum of 5 images.");
       } else {
-        setError(null);
         setImages((prevImages) => [...prevImages, ...validImages].slice(0, 5));
       }
     }
@@ -84,57 +148,9 @@ const AddAdvertisementModal: React.FC<AddAdvertisementModalProps> = ({
     setImages(images.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async () => {
-    if (images.length < 2) {
-      setError("You must upload at least 2 images.");
-    } else if (images.length > 5) {
-      setError("You can upload a maximum of 5 images.");
-    } else {
-      setError(null);
-
-      const formData = new FormData();
-      formData.append("title", title);
-      formData.append("small_description", smallDescription);
-      formData.append("description", description);
-      formData.append("price", price);
-      formData.append("discount", discount);
-      formData.append("price_based_on", priceBasedOn);
-      formData.append("category_id", selectedCategory?.toString() || "");
-      formData.append("tags", tags);
-      images.forEach((image) => formData.append("image_url[]", image));
-
-      try {
-        const response = await axios.post(
-          `${backEndURL}/api/advertisement/addAdvertisement`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-            },
-          }
-        );
-
-        toast.success("Advertisement added successfully.");
-        handleClose();
-      } catch (error) {
-        toast.error("Failed to add advertisement. Please try again.");
-        handleClose();
-      }
-    }
-  };
-
   const handleClear = () => {
-    setTitle("");
-    setSmallDescription("");
-    setDescription("");
-    setImages([]);
-    setPrice("");
-    setPriceBasedOn("");
-    setSelectedCategory(null);
-    setTags("");
-    setError(null);
-    setImageError(null);
+    formik.resetForm();
+    setSelectedCategory("");
   };
 
   return (
@@ -158,25 +174,40 @@ const AddAdvertisementModal: React.FC<AddAdvertisementModalProps> = ({
           </svg>
         </IconButton>
       </DialogHeader>
-      <DialogBody divider>
-        <div className="space-y-4">
+      <form onSubmit={formik.handleSubmit} className="space-y-4">
+        <DialogBody divider>
           <Input
             label="Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            id="title"
+            {...formik.getFieldProps("title")}
+            error={formik.touched.title && formik.errors.title ? true : false}
           />
+          {formik.touched.title && formik.errors.title ? (
+            <FormValidateErrorMsg message={formik.errors.title} />
+          ) : null}
           <Textarea
             label="Small Description"
-            value={smallDescription}
-            onChange={(e) => setSmallDescription(e.target.value)}
+            id="smallDescription"
+            {...formik.getFieldProps("smallDescription")}
+            error={
+              formik.touched.smallDescription && formik.errors.smallDescription
+                ? true
+                : false
+            }
           />
+          {formik.touched.smallDescription && formik.errors.smallDescription ? (
+            <FormValidateErrorMsg message={formik.errors.smallDescription} />
+          ) : null}
           <label>
             Advertisement long Description:
             <ReactQuill
-              value={description}
-              onChange={setDescription}
+              value={formik.values.description}
+              onChange={(value) => formik.setFieldValue("description", value)}
               className="h-32 mb-14"
             />
+            {formik.touched.description && formik.errors.description ? (
+              <FormValidateErrorMsg message={formik.errors.description} />
+            ) : null}
           </label>
           <div>
             <Typography as={"small"} className="">
@@ -211,10 +242,7 @@ const AddAdvertisementModal: React.FC<AddAdvertisementModalProps> = ({
               />
             </label>
 
-            {imageError && (
-              <div className="mt-1 text-sm text-red-500">{imageError}</div>
-            )}
-            {error && <div className="mt-1 text-sm text-red-500">{error}</div>}
+            {imageError && <FormValidateErrorMsg message={imageError} />}
             <div className="mt-2">
               {images.map((image, index) => (
                 <div
@@ -250,25 +278,42 @@ const AddAdvertisementModal: React.FC<AddAdvertisementModalProps> = ({
           <div className="flex items-center gap-3">
             <Input
               label="Price"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
+              id="price"
+              {...formik.getFieldProps("price")}
+              error={formik.touched.price && formik.errors.price ? true : false}
             />
+            {formik.touched.price && formik.errors.price ? (
+              <FormValidateErrorMsg message={formik.errors.price} />
+            ) : null}
             <Input
               label="Discount"
-              value={discount}
-              onChange={(e) => setDiscount(e.target.value)}
-              icon={<span className="text-gray-500">%</span>}
+              id="discount"
+              {...formik.getFieldProps("discount")}
+              error={
+                formik.touched.discount && formik.errors.discount ? true : false
+              }
             />
+            {formik.touched.discount && formik.errors.discount ? (
+              <FormValidateErrorMsg message={formik.errors.discount} />
+            ) : null}
           </div>
           <Input
             label="Price Based on"
-            value={priceBasedOn}
-            onChange={(e) => setPriceBasedOn(e.target.value)}
+            id="priceBasedOn"
+            {...formik.getFieldProps("priceBasedOn")}
+            error={
+              formik.touched.priceBasedOn && formik.errors.priceBasedOn
+                ? true
+                : false
+            }
           />
+          {formik.touched.priceBasedOn && formik.errors.priceBasedOn ? (
+            <FormValidateErrorMsg message={formik.errors.priceBasedOn} />
+          ) : null}
           <Select
             label="Category"
             value={selectedCategory?.toString()}
-            onChange={(val) => setSelectedCategory(Number(val))}
+            onChange={(val) => setSelectedCategory(val)}
           >
             {categories.map((category) => (
               <Option key={category.id} value={category.id.toString()}>
@@ -276,30 +321,37 @@ const AddAdvertisementModal: React.FC<AddAdvertisementModalProps> = ({
               </Option>
             ))}
           </Select>
+          {!selectedCategory ? (
+            <FormValidateErrorMsg message="Category is required" />
+          ) : null}
           <Input
             label="Tags"
-            value={tags}
-            onChange={(e) => setTags(e.target.value)}
+            id="tags"
+            {...formik.getFieldProps("tags")}
+            error={formik.touched.tags && formik.errors.tags ? true : false}
           />
-        </div>
-      </DialogBody>
-      <DialogFooter className="gap-4">
-        <Button
-          className="shadow-gray-400 hover:shadow-brown-400"
-          variant="gradient"
-          color="blue-gray"
-          onClick={handleClear}
-        >
-          Clear
-        </Button>
-        <Button
-          className="shadow-gray-400 hover:shadow-brown-400"
-          variant="gradient"
-          onClick={handleSubmit}
-        >
-          Submit
-        </Button>
-      </DialogFooter>
+          {formik.touched.tags && formik.errors.tags ? (
+            <FormValidateErrorMsg message={formik.errors.tags} />
+          ) : null}
+        </DialogBody>
+        <DialogFooter className="gap-4">
+          <Button
+            className="shadow-gray-400 hover:shadow-brown-400"
+            variant="gradient"
+            color="blue-gray"
+            onClick={handleClear}
+          >
+            Clear
+          </Button>
+          <Button
+            className="shadow-gray-400 hover:shadow-brown-400"
+            variant="gradient"
+            type="submit"
+          >
+            Submit
+          </Button>
+        </DialogFooter>
+      </form>
     </Dialog>
   );
 };
