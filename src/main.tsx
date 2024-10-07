@@ -17,7 +17,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <AuthProvider>
           <App />
         </AuthProvider>
-        <ToastContainer position="top-right" autoClose={5000} hideProgressBar />
+        <ToastContainer position="top-right" autoClose={5000} />
       </Router>
     </ThemeProvider>
   </React.StrictMode>

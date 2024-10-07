@@ -7,6 +7,9 @@ import {
   IconButton,
   Collapse,
   Spinner,
+  Popover,
+  PopoverContent,
+  PopoverHandler,
 } from "@material-tailwind/react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import Logo from "../../images/Logos/logo-blacktext.svg";
@@ -146,37 +149,17 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
   };
 
   const avatarDropdown = (
-    <div className="relative">
-      <img
-        alt={user?.name}
-        src={profilePicture}
-        className="inline-block object-cover object-center w-12 h-12 rounded-full cursor-pointer hover:shadow-lg"
-        data-popover-target="profile-menu"
-        onClick={() => setOpenProfileMenu(!openProfileMenu)}
-      />
-      {openProfileMenu && (
-        <ul
-          ref={profileMenuRef}
-          role="menu"
-          data-popover="profile-menu"
-          className="absolute z-10 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none block"
-          style={{
-            right:
-              profileMenuRef.current &&
-              window.innerWidth -
-                profileMenuRef.current.getBoundingClientRect().right >
-                0
-                ? "auto"
-                : "0",
-            left:
-              profileMenuRef.current &&
-              window.innerWidth -
-                profileMenuRef.current.getBoundingClientRect().right >
-                0
-                ? profileMenuRef.current.getBoundingClientRect().left + "px"
-                : "auto",
-          }}
-        >
+    <Popover placement="bottom-end">
+      <PopoverHandler>
+        <img
+          alt={user?.name}
+          src={profilePicture}
+          className="inline-block object-cover object-center w-12 h-12 rounded-full cursor-pointer hover:shadow-lg"
+          data-popover-target="profile-menu"
+        />
+      </PopoverHandler>
+      <PopoverContent>
+        <ul ref={profileMenuRef} role="menu" data-popover="profile-menu">
           <button
             role="menuitem"
             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
@@ -199,8 +182,8 @@ const NavBar: React.FC<{ children: ReactNode }> = ({ children }) => {
             Sign Out
           </button>
         </ul>
-      )}
-    </div>
+      </PopoverContent>
+    </Popover>
   );
 
   const isActive = (path: string) => {
