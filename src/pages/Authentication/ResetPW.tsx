@@ -2,10 +2,20 @@ import { Typography, Input, Button } from "@material-tailwind/react";
 import { EyeSlashIcon, EyeIcon } from "@heroicons/react/24/solid";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom"; // For accessing URL parameters
+import axios from "axios"; // For sending API requests
+import { toast } from "react-toastify"; // React toast for notifications
 import FormValidationErrorMsg from "../../components/Verification/FormValidationErrorMsg";
 
-export function SignUp() {
+const backEndURL = import.meta.env.VITE_LARAVEL_APP_URL;
+
+export function ResetPW() {
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token");
+  const email = searchParams.get("email");
+  const navigate = useNavigate();
+
   const formik = useFormik({
     initialValues: {
       password: "",
@@ -19,9 +29,30 @@ export function SignUp() {
         .oneOf([Yup.ref("password"), null], "Passwords must match")
         .required("Confirm password is required"),
     }),
-    onSubmit: (values) => {
-      // Handle form submission here
-      console.log(values);
+    onSubmit: async (values) => {
+      try {
+        // API call to reset password
+        await toast.promise(
+          axios.post(`${backEndURL}/api/reset-password`, {
+            token,
+            email,
+            password: values.password,
+            password_confirmation: values.confirmPassword,
+          }),
+          {
+            pending: "Updating password...",
+            success: "Password updated successfully!",
+            error: "Failed to update password. Please try again.",
+          }
+        );
+        navigate("/signin");
+      } catch (error) {
+        if (error.response && error.response.data.message) {
+          toast.error(error.response.data.message);
+        } else {
+          toast.error("An error occurred. Please try again.");
+        }
+      }
     },
   });
 
@@ -132,4 +163,4 @@ export function SignUp() {
   );
 }
 
-export default SignUp;
+export default ResetPW;
