@@ -144,7 +144,7 @@ export default function Home() {
                 {/* Heading start */}
                 <header className="mx-auto mb-12 text-center lg:px-20">
                   <h2 className="mb-2 text-6xl font-bold leading-normal text-black Polysans_median">
-                    What We Do
+                    What We Offer
                   </h2>
                   <svg
                     version="1.1"
