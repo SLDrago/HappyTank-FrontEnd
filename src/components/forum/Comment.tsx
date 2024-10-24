@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Avatar, Button, Typography, Input } from "@material-tailwind/react";
 import { PaperAirplaneIcon } from "@heroicons/react/24/outline";
+import { useAuth } from "../../context/AuthContext";
 
 const backEndURL = import.meta.env.VITE_LARAVEL_APP_URL;
 
@@ -28,6 +29,7 @@ const Comment: React.FC<CommentProps> = ({ comment, onReply }) => {
   const [reply, setReply] = useState("");
   const [showReplyInput, setShowReplyInput] = useState(false);
   const [visibleReplies, setVisibleReplies] = useState(2);
+  const { token } = useAuth();
 
   const handleReply = () => {
     if (reply.trim()) {
@@ -56,7 +58,7 @@ const Comment: React.FC<CommentProps> = ({ comment, onReply }) => {
         <div>
           <Typography variant="h6">{comment.user.name}</Typography>
           <Typography variant="paragraph">{comment.content}</Typography>
-          {comment.replies && comment.replies.length >= 0 && (
+          {comment.replies && comment.replies.length >= 0 && token && (
             <Button
               size="sm"
               variant="text"

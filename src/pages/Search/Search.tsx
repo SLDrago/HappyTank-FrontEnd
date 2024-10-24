@@ -480,6 +480,7 @@ export default function Search() {
                         description={ad.small_description}
                         rating={ad.avg_review}
                         price={ad.price.toString()}
+                        link={`/advertisements/products/${ad.title}?id=${ad.id}`}
                       />
                     ))}
                   </div>

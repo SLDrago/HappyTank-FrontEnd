@@ -176,15 +176,17 @@ const AddAdvertisementModal: React.FC<AddAdvertisementModalProps> = ({
       </DialogHeader>
       <form onSubmit={formik.handleSubmit} className="space-y-4">
         <DialogBody divider>
-          <Input
-            label="Title"
-            id="title"
-            {...formik.getFieldProps("title")}
-            error={formik.touched.title && formik.errors.title ? true : false}
-          />
-          {formik.touched.title && formik.errors.title ? (
-            <FormValidateErrorMsg message={formik.errors.title} />
-          ) : null}
+          <div className="mb-4">
+            <Input
+              label="Title"
+              id="title"
+              {...formik.getFieldProps("title")}
+              error={formik.touched.title && formik.errors.title ? true : false}
+            />
+            {formik.touched.title && formik.errors.title ? (
+              <FormValidateErrorMsg message={formik.errors.title} />
+            ) : null}
+          </div>
           <Textarea
             label="Small Description"
             id="smallDescription"
@@ -209,7 +211,7 @@ const AddAdvertisementModal: React.FC<AddAdvertisementModalProps> = ({
               <FormValidateErrorMsg message={formik.errors.description} />
             ) : null}
           </label>
-          <div>
+          <div className="mb-4">
             <Typography as={"small"} className="">
               Attach your images(2-5)
             </Typography>
@@ -275,7 +277,7 @@ const AddAdvertisementModal: React.FC<AddAdvertisementModalProps> = ({
               ))}
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 mb-4">
             <Input
               label="Price"
               id="price"
@@ -297,42 +299,50 @@ const AddAdvertisementModal: React.FC<AddAdvertisementModalProps> = ({
               <FormValidateErrorMsg message={formik.errors.discount} />
             ) : null}
           </div>
-          <Input
-            label="Price Based on"
-            id="priceBasedOn"
-            {...formik.getFieldProps("priceBasedOn")}
-            error={
-              formik.touched.priceBasedOn && formik.errors.priceBasedOn
-                ? true
-                : false
-            }
-          />
-          {formik.touched.priceBasedOn && formik.errors.priceBasedOn ? (
-            <FormValidateErrorMsg message={formik.errors.priceBasedOn} />
-          ) : null}
-          <Select
-            label="Category"
-            value={selectedCategory?.toString()}
-            onChange={(val) => setSelectedCategory(val)}
-          >
-            {categories.map((category) => (
-              <Option key={category.id} value={category.id.toString()}>
-                {category.name}
-              </Option>
-            ))}
-          </Select>
-          {!selectedCategory ? (
-            <FormValidateErrorMsg message="Category is required" />
-          ) : null}
-          <Input
-            label="Tags"
-            id="tags"
-            {...formik.getFieldProps("tags")}
-            error={formik.touched.tags && formik.errors.tags ? true : false}
-          />
-          {formik.touched.tags && formik.errors.tags ? (
-            <FormValidateErrorMsg message={formik.errors.tags} />
-          ) : null}
+          <div className="mb-4">
+            <Input
+              label="Price Based on"
+              id="priceBasedOn"
+              {...formik.getFieldProps("priceBasedOn")}
+              error={
+                formik.touched.priceBasedOn && formik.errors.priceBasedOn
+                  ? true
+                  : false
+              }
+            />
+            {formik.touched.priceBasedOn && formik.errors.priceBasedOn ? (
+              <FormValidateErrorMsg message={formik.errors.priceBasedOn} />
+            ) : null}
+          </div>
+          <div className="mb-4">
+            <Select
+              label="Category"
+              className="mb-4"
+              value={selectedCategory?.toString()}
+              onChange={(val) => setSelectedCategory(val)}
+            >
+              {categories.map((category) => (
+                <Option key={category.id} value={category.id.toString()}>
+                  {category.name}
+                </Option>
+              ))}
+            </Select>
+            {!selectedCategory ? (
+              <FormValidateErrorMsg message="Category is required" />
+            ) : null}
+          </div>
+          <div className="mb-4">
+            <Input
+              label="Tags"
+              id="tags"
+              className="mb-4"
+              {...formik.getFieldProps("tags")}
+              error={formik.touched.tags && formik.errors.tags ? true : false}
+            />
+            {formik.touched.tags && formik.errors.tags ? (
+              <FormValidateErrorMsg message={formik.errors.tags} />
+            ) : null}
+          </div>
         </DialogBody>
         <DialogFooter className="gap-4">
           <Button

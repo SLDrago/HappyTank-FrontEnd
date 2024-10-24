@@ -300,19 +300,21 @@ const Post: React.FC<PostProps> = ({ post, updatePost, deletePost }) => {
         <CardFooter className="pt-4">
           <div className="flex justify-between items-center">
             <div className="flex space-x-4">
-              <Button
-                size="md"
-                variant="text"
-                className="flex items-center p-1"
-                onClick={liked ? handleUnlike : handleLike}
-              >
-                {liked ? (
-                  <HeartIconSolid className="w-5 h-5 text-red-500" />
-                ) : (
-                  <HeartIconOutline className="w-5 h-5" />
-                )}
-                <span className="ml-1">{likesCount}</span>
-              </Button>
+              {token && (
+                <Button
+                  size="md"
+                  variant="text"
+                  className="flex items-center p-1"
+                  onClick={liked ? handleUnlike : handleLike}
+                >
+                  {liked ? (
+                    <HeartIconSolid className="w-5 h-5 text-red-500" />
+                  ) : (
+                    <HeartIconOutline className="w-5 h-5" />
+                  )}
+                  <span className="ml-1">{likesCount}</span>
+                </Button>
+              )}
               <Button
                 size="md"
                 variant="text"
@@ -324,11 +326,13 @@ const Post: React.FC<PostProps> = ({ post, updatePost, deletePost }) => {
               </Button>
             </div>
             <Popover placement="top-end">
-              <PopoverHandler>
-                <Button size="md" variant="text" className="p-1">
-                  <EllipsisHorizontalIcon className="w-5 h-5" />
-                </Button>
-              </PopoverHandler>
+              {token && (
+                <PopoverHandler>
+                  <Button size="md" variant="text" className="p-1">
+                    <EllipsisHorizontalIcon className="w-5 h-5" />
+                  </Button>
+                </PopoverHandler>
+              )}
               <PopoverContent className="flex align-middle flex-col">
                 {!isOwner ? (
                   <Button
@@ -367,18 +371,20 @@ const Post: React.FC<PostProps> = ({ post, updatePost, deletePost }) => {
               </PopoverContent>
             </Popover>
           </div>
-          <div className="mt-4 flex items-center">
-            <Input
-              type="text"
-              placeholder="Add a comment..."
-              className="flex-grow"
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-            />
-            <Button className="ml-2" onClick={handleAddComment}>
-              <PaperAirplaneIcon className="w-4 h-4" />
-            </Button>
-          </div>
+          {token && (
+            <div className="mt-4 flex items-center">
+              <Input
+                type="text"
+                placeholder="Add a comment..."
+                className="flex-grow"
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+              />
+              <Button className="ml-2" onClick={handleAddComment}>
+                <PaperAirplaneIcon className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
           {showComments && (
             <div className="mt-4">
               {post.comments.slice(0, visibleComments).map((comment: any) => (

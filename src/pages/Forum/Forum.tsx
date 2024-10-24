@@ -10,6 +10,7 @@ import Post from "../../components/forum/Post";
 import NewPostDialog from "../../components/forum/NewPostDialog";
 import axios from "axios";
 import PostSkeleton from "../../components/forum/PostSkeleton";
+import { useAuth } from "../../context/AuthContext";
 
 const backEndURL = import.meta.env.VITE_LARAVEL_APP_URL;
 
@@ -22,6 +23,7 @@ const Forum: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const initialFetchDone = useRef(false);
+  const { token } = useAuth();
 
   const fetchPosts = async (pageNum: number) => {
     if (loading || (lastPage !== null && pageNum > lastPage)) return;
@@ -147,14 +149,16 @@ const Forum: React.FC = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyPress={handleSearchKeyPress}
           />
-          <Button
-            size="sm"
-            className="flex items-center w-full lg:w-4/12 justify-center"
-            onClick={() => setOpenNewPost(true)}
-          >
-            <PencilSquareIcon className="w-5 h-5 mr-2" />
-            Create Post
-          </Button>
+          {token && (
+            <Button
+              size="sm"
+              className="flex items-center w-full lg:w-4/12 justify-center"
+              onClick={() => setOpenNewPost(true)}
+            >
+              <PencilSquareIcon className="w-5 h-5 mr-2" />
+              Create Post
+            </Button>
+          )}
         </div>
         {loading && <PostSkeleton />}
         {!loading && posts.length === 0 && (
