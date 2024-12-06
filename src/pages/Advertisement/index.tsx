@@ -11,6 +11,12 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { AdCardSkeltons } from "../../components/Advertisement/AdCardSkeltons";
 import NoAdsFound from "../../components/Advertisement/NoAdsFound";
 import axios from "axios";
+import fishImg from "../../images/Categories/fish.avif";
+import decoImg from "../../images/Categories/decoration.webp";
+import foodImg from "../../images/Categories/food.webp";
+import maintananceImg from "../../images/Categories/maintainance.webp";
+import medicineImg from "../../images/Categories/medicine.jpg";
+import tankImg from "../../images/Categories/tanks.png";
 
 const backEndUrl = import.meta.env.VITE_LARAVEL_APP_URL;
 interface Advertisement {
@@ -29,48 +35,42 @@ const Advertisement = () => {
   const navigate = useNavigate();
   const items = [
     {
-      imageSrc:
-        "https://images.unsplash.com/photo-1586947726958-3d329e3a5d7a?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8Z29sZGZpc2h8ZW58MHx8MHx8fDA%3D",
+      imageSrc: fishImg,
       imageAlt: "Fish",
       link: "/advertisements/products?category=1",
       title: "Ornamental Fish",
       category: "Fish",
     },
     {
-      imageSrc:
-        "https://sa1s3optim.patientpop.com/assets/images/provider/photos/2494334.png",
+      imageSrc: tankImg,
       imageAlt: "Fish Tanks",
       link: "/advertisements/products?category=2",
       title: "Aquariums and Tanks",
       category: "Tanks",
     },
     {
-      imageSrc:
-        "https://i5.walmartimages.com/seo/Mascarry-300-Gallon-Adjustable-Silent-Air-Pump-for-Large-Aquarium-Fish-Tank_010f53c4-fe61-45e3-af24-e7ccfa419e1a.c4749756ee02e4d86a8249919706ed2d.jpeg",
+      imageSrc: maintananceImg,
       imageAlt: "Maintainance Tools",
       link: "/advertisements/products?category=8",
       title: "Maintainance Tools",
       category: "Maintainance",
     },
     {
-      imageSrc:
-        "https://cdn.shopify.com/s/files/1/0311/3149/files/small_xtremecommunitycrave_guppycommunitytank.webp?v=1676315792",
+      imageSrc: foodImg,
       imageAlt: "Fish Foods",
       link: "/advertisements/products?category=5",
       title: "Fish Foods",
       category: "Foods",
     },
     {
-      imageSrc:
-        "https://rukminim2.flixcart.com/image/850/1000/jwqpocw0/aquarium-plant-anchor/c/m/3/artificial-plants-for-aquarium-fish-tank-decorations-venus-aqua-original-imafhcychguuc9nb.jpeg?q=20&crop=false",
+      imageSrc: decoImg,
       imageAlt: "Artificial Plants",
       link: "/advertisements/products?category=7",
       title: "Decoration and Substrate",
       category: "Decoration",
     },
     {
-      imageSrc:
-        "https://fishfixsrilanka.lk/wp-content/uploads/2021/09/maxresdefaultfxgcxg.jpg",
+      imageSrc: medicineImg,
       imageAlt: "Fish Treatments",
       link: "/advertisements/products?category=6",
       title: "Medicines and Supplements",

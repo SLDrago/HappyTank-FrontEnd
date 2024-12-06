@@ -74,7 +74,8 @@ const AddAdvertisementModal: React.FC<AddAdvertisementModalProps> = ({
       discount: Yup.number()
         .typeError("Discount must be a number")
         .min(0, "Discount cannot be less than 0")
-        .max(100, "Discount cannot be more than 100"),
+        .max(100, "Discount cannot be more than 100")
+        .required("Discount is required"),
       priceBasedOn: Yup.string().required("Price based on is required"),
       tags: Yup.string()
         .matches(
@@ -290,6 +291,7 @@ const AddAdvertisementModal: React.FC<AddAdvertisementModalProps> = ({
             <Input
               label="Discount"
               id="discount"
+              defaultValue={"0"}
               {...formik.getFieldProps("discount")}
               error={
                 formik.touched.discount && formik.errors.discount ? true : false
