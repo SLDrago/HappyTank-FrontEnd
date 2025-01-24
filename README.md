@@ -12,7 +12,6 @@ Welcome to the HappyTank Frontend repository! This project is part of the HappyT
 - **Community Forum**: Engage with other enthusiasts in a dedicated forum.
 - **Fish Tank Design Generator**: Generate tank designs tailored to your preferences.
 - **AI-Suggested Environmental Recommendations**: Receive suggestions to maintain optimal tank conditions.
-- **Admin Panel**: Manage platform content and users efficiently.
 
 ## Tech Stack
 
